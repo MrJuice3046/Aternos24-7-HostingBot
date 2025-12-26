@@ -1,8 +1,5 @@
-Here’s a revised version of your README with that addition included naturally:
 
----
-
-# Aternos24-7-HostingBot
+# Aternos24/7-HostingBot
 
 A Minecraft bot that helps keep an **Aternos server online** by automatically joining it using a **Mineflayer-based bot**.
 Useful for **SMPs** or **small multiplayer servers** that shut down when no players are online.
