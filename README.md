@@ -1,3 +1,7 @@
+Here’s a revised version of your README with that addition included naturally:
+
+---
+
 # Aternos24-7-HostingBot
 
 A Minecraft bot that helps keep an **Aternos server online** by automatically joining it using a **Mineflayer-based bot**.
@@ -10,6 +14,7 @@ Useful for **SMPs** or **small multiplayer servers** that shut down when no play
 * Optional auto-auth support
 * Chat logging and automated messages
 * Auto-reconnect if the bot disconnects
+* **Compatible with Paper servers and servers with plugins (Spigot,Bukkit,Purpur)**
 
 ## Requirements
 
@@ -36,7 +41,7 @@ Other compatible hosting providers may also work.
 
 ## Credits & Thanks
 
-* **Slobos (Discord - sloboscc)** — HUGE thanks for the overall code and for helping develop the idea behind this project (da goat frfr) 
+* **Slobos (Discord - sloboscc)** — HUGE thanks for the overall code and for helping develop the idea behind this project (da goat frfr)
 * **Made/Updates by Mr.Juice (Discord - Mr.Juice3046)**
 
 ## Disclaimer
@@ -50,5 +55,4 @@ MIT License
 
 ---
 
-
-
+If you want, I can also tweak it to **emphasize plugin support even more**, so server owners immediately see it works with mods and Paper servers. Do you want me to do that?
