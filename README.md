@@ -26,13 +26,18 @@ To keep the bot online at all times, you must run it on a **hosting service**.
 
 * **Render** (Node.js support, simple setup, reliable uptime)
 
-Other Node.js-compatible hosting providers may also work.
+Other compatible hosting providers may also work.
 
 ## Configuration Notes
 
-* The bot stays connected to keep the server from going offline
-* Incorrect configuration may cause connection failures
-* This bot does **not bypass Aternos limits**, it only prevents idle shutdown
+* The bot stays connected to prevent the server from going offline
+* Incorrect configuration may cause connection issues
+* This bot does **not bypass Aternos limits**, it only keeps the server active
+
+## Credits & Thanks
+
+* **Slobos (Discord - sloboscc)** — HUGE thanks for the overall code and for helping develop the idea behind this project (da goat frfr) 
+* **Made/Updates by Mr.Juice (Discord - Mr.Juice3046)**
 
 ## Disclaimer
 
@@ -40,6 +45,10 @@ This project is **not affiliated with Aternos**, Mojang, or Microsoft.
 Use at your own risk. Misuse may violate platform terms of service.
 
 ## License
+
+MIT License
+
+---
 
 
 
