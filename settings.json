@@ -6,8 +6,8 @@
   },
 
   "server": {
-    "ip": "ricoiscool.aternos.me", 
-    "port": 56559,   
+    "ip": "goodhostingbot.aternos.me", 
+    "port": 11111,   
     "version": "1.12.1"   
   },
   
