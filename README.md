@@ -52,4 +52,3 @@ MIT License
 
 ---
 
-If you want, I can also tweak it to **emphasize plugin support even more**, so server owners immediately see it works with mods and Paper servers. Do you want me to do that?
