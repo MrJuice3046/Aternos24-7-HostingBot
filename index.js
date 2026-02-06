@@ -186,11 +186,15 @@ function formatUptime(seconds) {
 // ============================================================
 const SELF_PING_INTERVAL = 10 * 60 * 1000; // 10 minutes
 
+const https = require('https');
+
 function startSelfPing() {
   setInterval(() => {
     const url = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
-    http.get(`${url}/ping`, (res) => {
-      console.log(`[KeepAlive] Self-ping: ${res.statusCode}`);
+    const protocol = url.startsWith('https') ? https : http;
+
+    protocol.get(`${url}/ping`, (res) => {
+      // console.log(`[KeepAlive] Self-ping: ${res.statusCode}`); // Optional: reduce spam
     }).on('error', (err) => {
       console.log(`[KeepAlive] Self-ping failed: ${err.message}`);
     });
@@ -230,10 +234,14 @@ function addInterval(callback, delay) {
 }
 
 function getReconnectDelay() {
+  // Aggressive reconnection: fast, flat delay or very subtle backoff
   const baseDelay = config.utils['auto-reconnect-delay'] || 5000;
-  const maxDelay = config.utils['max-reconnect-delay'] || 300000;
-  // Exponential backoff: 5s, 10s, 20s, 40s... up to max
-  const delay = Math.min(baseDelay * Math.pow(2, botState.reconnectAttempts), maxDelay);
+  const maxDelay = config.utils['max-reconnect-delay'] || 30000;
+
+  // Use a much gentler backoff or just a flat delay if user wants "lower"
+  // Current logic: attempts * 1000 + base, capped at max
+  const delay = Math.min(baseDelay + (botState.reconnectAttempts * 1000), maxDelay);
+
   return delay;
 }
 
@@ -266,7 +274,8 @@ function createBot() {
       host: config.server.ip,
       port: config.server.port,
       version: config.server.version,
-      hideErrors: false
+      hideErrors: false,
+      checkTimeoutInterval: 0 // DISABLE client-side timeout checks (prevents 30s disconnects)
     });
 
     bot.loadPlugin(pathfinder);
