@@ -32,7 +32,7 @@ app.get('/', (req, res) => {
   res.send(`
     <html>
       <head>
-        <title>Slobos Bot Status</title>
+        <title>${config.name} Status</title>
         <meta http-equiv="refresh" content="5"> <!-- Auto-refresh every 5s -->
         <style>
           body { 
@@ -71,7 +71,7 @@ app.get('/', (req, res) => {
       </head>
       <body>
         <div class="container">
-          <h1>🤖 Slobos AFK Bot</h1>
+          <h1>🤖 ${config.name}</h1>
           
           <div class="stat-card">
             <div class="label">Status</div>
@@ -106,7 +106,7 @@ app.get('/tutorial', (req, res) => {
   res.send(`
     <html>
       <head>
-        <title>Slobos Bot - Setup Guide</title>
+        <title>${config.name} - Setup Guide</title>
         <style>
           body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #cbd5e1; padding: 40px; max-width: 800px; margin: 0 auto; line-height: 1.6; }
           h1, h2 { color: #2dd4bf; }
@@ -151,7 +151,7 @@ app.get('/tutorial', (req, res) => {
           </ol>
         </div>
         
-        <p style="text-align: center; margin-top: 40px; color: #64748b;">Made by Slobos & Mr.Juice</p>
+        <p style="text-align: center; margin-top: 40px; color: #64748b;">AFK Bot Dashboard</p>
       </body>
     </html>
   `);
