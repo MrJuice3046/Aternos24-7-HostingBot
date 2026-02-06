@@ -1,0 +1,76 @@
+{
+  "bot-account": {
+    "username": "Technoblade", // Change For Your Username
+    "password": "", // DO NOT CHANGE
+    "type": "offline"
+  },
+  "server": {
+    "ip": "ricoiscool.aternos.me", // Change For Your IP 
+    "port": 56559, // Change For Your Port
+    "version": "1.21.1"
+  },
+  "position": {
+    "enabled": true,
+    "x": 0,
+    "y": 100,
+    "z": 0
+  },
+  "utils": {
+    "auto-auth": {
+      "enabled": true,
+      "password": "chalol78" // I mean change if you want ig?
+    },
+    "anti-afk": {
+      "enabled": true,
+      "sneak": true
+    },
+    "chat-messages": {
+      "enabled": true,
+      "repeat": true,
+      "repeat-delay": 120,
+      "messages": [
+        "I'm a regular player", // Change For Your Messages oppitonal but fun
+        "Subscribe to Slobos!",
+        "I like to play Minecraft!"
+      ]
+    },
+    "chat-log": true,
+    "auto-reconnect": true,
+    "auto-reconnect-delay": 5000,
+    "max-reconnect-delay": 300000
+  },
+  "movement": {
+    "enabled": true,
+    "circle-walk": {
+      "enabled": true,
+      "radius": 4,
+      "speed": 3000
+    },
+    "look-around": {
+      "enabled": true,
+      "interval": 5000
+    },
+    "random-jump": {
+      "enabled": true,
+      "interval": 10000
+    }
+  },
+  "modules": {
+    "avoidMobs": true,
+    "combat": true,
+    "beds": false,
+    "chat": true,
+    "console-commands": true
+  },
+  "combat": {
+    "attack-mobs": true,
+    "auto-eat": true
+  },
+  "beds": {
+    "pick-up-day": false,
+    "place-night": false
+  },
+  "chat": {
+    "respond": true
+  }
+}
