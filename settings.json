@@ -1,12 +1,13 @@
 {
+  "name": "AFK Bot",
   "bot-account": {
-    "username": "Technoblade", // Change For Your Username
-    "password": "", // DO NOT CHANGE
+    "username": "Technoblade",
+    "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "ricoiscool.aternos.me", // Change For Your IP 
-    "port": 56559, // Change For Your Port
+    "ip": "ricoiscool.aternos.me",
+    "port": 56559,
     "version": "1.21.1"
   },
   "position": {
@@ -18,7 +19,7 @@
   "utils": {
     "auto-auth": {
       "enabled": true,
-      "password": "chalol78" // I mean change if you want ig?
+      "password": "chalol78"
     },
     "anti-afk": {
       "enabled": true,
@@ -29,7 +30,7 @@
       "repeat": true,
       "repeat-delay": 120,
       "messages": [
-        "I'm a regular player", // Change For Your Messages oppitonal but fun
+        "I'm a regular player",
         "Subscribe to Slobos!",
         "I like to play Minecraft!"
       ]
