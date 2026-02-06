@@ -23,17 +23,13 @@ let botState = {
 // Health check endpoint for monitoring
 // Health check endpoint for monitoring
 app.get('/', (req, res) => {
-  const uptime = Math.floor((Date.now() - botState.startTime) / 1000);
-  const coords = (bot && bot.entity) ?
-    `${Math.floor(bot.entity.position.x)}, ${Math.floor(bot.entity.position.y)}, ${Math.floor(bot.entity.position.z)}` :
-    'Unknown';
-
-  // "Blue Teal Shadow" Theme
+  // "Blue Teal Shadow" Theme - Live Dashboard
   res.send(`
+    <!DOCTYPE html>
     <html>
       <head>
         <title>${config.name} Status</title>
-        <meta http-equiv="refresh" content="5"> <!-- Auto-refresh every 5s -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
           body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -44,48 +40,92 @@ app.get('/', (req, res) => {
             align-items: center; 
             height: 100vh; 
             margin: 0; 
+            overflow: hidden;
           }
           .container {
             background: #1e293b;
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 0 50px rgba(45, 212, 191, 0.2); /* Teal ambient glow */
+            box-shadow: 0 0 50px rgba(45, 212, 191, 0.2);
             text-align: center;
             width: 400px;
             border: 1px solid #334155;
+            transition: box-shadow 0.3s ease;
           }
-          h1 { margin-bottom: 30px; font-size: 24px; color: #ccfbf1; }
+          h1 { margin-bottom: 30px; font-size: 24px; color: #ccfbf1; display: flex; align-items: center; justify-content: center; gap: 10px; }
           .stat-card {
             background: #0f172a;
             padding: 15px;
             margin: 15px 0;
             border-radius: 12px;
-            border-left: 5px solid #2dd4bf; /* Teal Accent */
+            border-left: 5px solid #2dd4bf;
             text-align: left;
-            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3); /* The User Requested Shadow */
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
           }
           .label { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
-          .value { font-size: 18px; font-weight: bold; color: #2dd4bf; text-shadow: 0 0 10px rgba(45, 212, 191, 0.5); }
-          .status-dot { color: ${botState.connected ? '#4ade80' : '#f87171'}; font-size: 24px; vertical-align: middle; }
+          .value { font-size: 18px; font-weight: bold; color: #2dd4bf; text-shadow: 0 0 10px rgba(45, 212, 191, 0.5); margin-top: 5px; }
+          .status-dot { 
+            height: 12px; width: 12px; 
+            border-radius: 50%; 
+            display: inline-block; 
+            margin-right: 8px;
+            box-shadow: 0 0 10px currentColor;
+            transition: color 0.3s ease, box-shadow 0.3s ease;
+            background-color: currentColor; /* Use CSS for the dot color */
+          }
+          /* Override specific IDs to set background color for the dot */
+          #live-indicator { background-color: currentColor; }
+          
+          .pulse { animation: pulse 2s infinite; }
+          @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+          }
+          .btn-guide {
+            display: inline-block; margin-top: 20px; padding: 12px 24px; 
+            background: #2dd4bf; color: #0f172a; text-decoration: none; 
+            border-radius: 8px; font-weight: bold; 
+            box-shadow: 0 0 15px rgba(45, 212, 191, 0.4);
+            transition: transform 0.2s;
+          }
+          .btn-guide:hover { transform: translateY(-2px); }
+          .connection-bar {
+            height: 4px; background: #334155; width: 100%; margin-top: 20px; border-radius: 2px; overflow: hidden;
+          }
+          .connection-fill {
+            height: 100%; width: 100%; background: #2dd4bf;
+            animation: loading 2s infinite linear;
+            transform-origin: 0% 50%;
+          }
+          @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
         </style>
       </head>
       <body>
-        <div class="container">
-          <h1>🤖 ${config.name}</h1>
+        <div class="container" id="main-container">
+          <h1>
+            <span id="live-indicator" class="status-dot pulse" style="color: #ef4444;"></span> 
+            ${config.name}
+          </h1>
           
           <div class="stat-card">
             <div class="label">Status</div>
-            <div class="value"><span class="status-dot">●</span> ${botState.connected ? 'Online & Running' : 'Disconnected / Reconnecting'}</div>
+            <div class="value" id="status-text">Connecting...</div>
           </div>
 
           <div class="stat-card">
             <div class="label">Uptime</div>
-            <div class="value">${formatUptime(uptime)}</div>
+            <div class="value" id="uptime-text">0h 0m 0s</div>
           </div>
 
           <div class="stat-card">
             <div class="label">Coordinates</div>
-            <div class="value">📍 ${coords}</div>
+            <div class="value" id="coords-text">Waiting...</div>
           </div>
 
           <div class="stat-card">
@@ -93,10 +133,69 @@ app.get('/', (req, res) => {
             <div class="value">${config.server.ip}</div>
           </div>
 
-          <a href="/tutorial" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background: #2dd4bf; color: #0f172a; text-decoration: none; border-radius: 8px; font-weight: bold; box-shadow: 0 0 15px rgba(45, 212, 191, 0.4);">📘 View Setup Guide</a>
-
-          <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Auto-refreshing every 5s</p>
+          <a href="/tutorial" class="btn-guide">View Setup Guide</a>
+          
+          <div class="connection-bar">
+            <div class="connection-fill" id="activity-bar"></div>
+          </div>
+          
+          <p style="color: #64748b; font-size: 12px; margin-top: 15px;">
+            Live connection to Bot Process
+          </p>
         </div>
+
+        <script>
+          const formatUptime = (seconds) => {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            return \`\${h}h \${m}m \${s}s\`;
+          };
+
+          const updateStats = async () => {
+            try {
+              const res = await fetch('/health');
+              const data = await res.json();
+              
+              const statusText = document.getElementById('status-text');
+              const uptimeText = document.getElementById('uptime-text');
+              const coordsText = document.getElementById('coords-text');
+              const liveDot = document.getElementById('live-indicator');
+              const container = document.getElementById('main-container');
+
+              // Update Status
+              if (data.status === 'connected') {
+                statusText.innerHTML = '<span class="status-dot" style="color: #4ade80;"></span> Online & Running';
+                statusText.style.color = '#2dd4bf';
+                liveDot.style.color = '#4ade80'; // Green pulse
+                container.style.boxShadow = '0 0 50px rgba(45, 212, 191, 0.2)';
+              } else {
+                statusText.innerHTML = '<span class="status-dot" style="color: #f87171;"></span> Reconnecting...';
+                statusText.style.color = '#f87171';
+                liveDot.style.color = '#f87171'; // Red pulse
+                container.style.boxShadow = '0 0 50px rgba(248, 113, 113, 0.2)';
+              }
+
+              // Update Uptime
+              uptimeText.innerText = formatUptime(data.uptime);
+
+              // Update Coords
+              if (data.coords) {
+                coordsText.innerText = \`Coords: \${Math.floor(data.coords.x)}, \${Math.floor(data.coords.y)}, \${Math.floor(data.coords.z)}\`;
+              } else {
+                coordsText.innerText = 'Unknown Location';
+              }
+
+            } catch (e) {
+              document.getElementById('status-text').innerText = 'System Offline';
+              document.getElementById('live-indicator').style.color = '#64748b'; // Grey
+            }
+          };
+
+          // Poll every 1 second
+          setInterval(updateStats, 1000);
+          updateStats();
+        </script>
       </body>
     </html>
   `);
@@ -118,8 +217,8 @@ app.get('/tutorial', (req, res) => {
         </style>
       </head>
       <body>
-        <a href="/" class="btn-home">← Back to Dashboard</a>
-        <h1>🚀 Setup Guide (Under 15 Minutes)</h1>
+        <a href="/" class="btn-home">Back to Dashboard</a>
+        <h1>Setup Guide (Under 15 Minutes)</h1>
         
         <div class="card">
           <h2>Step 1: Configure Aternos</h2>
@@ -235,7 +334,7 @@ function addInterval(callback, delay) {
 
 function getReconnectDelay() {
   // Aggressive reconnection: fast, flat delay or very subtle backoff
-  const baseDelay = config.utils['auto-reconnect-delay'] || 5000;
+  const baseDelay = config.utils['auto-reconnect-delay'] || 2000;
   const maxDelay = config.utils['max-reconnect-delay'] || 30000;
 
   // Use a much gentler backoff or just a flat delay if user wants "lower"
@@ -295,7 +394,10 @@ function createBot() {
       botState.reconnectAttempts = 0;
       isReconnecting = false;
 
-      console.log(`[Bot] ✓ Successfully spawned on server!`);
+      console.log(`[Bot] [+] Successfully spawned on server!`);
+      if (config.discord && config.discord.events.connect) {
+        sendDiscordWebhook(`[+] **Connected** to \`${config.server.ip}\``, 0x4ade80); // Green
+      }
 
       const mcData = require('minecraft-data')(config.server.version);
       const defaultMove = new Movements(bot, mcData);
@@ -314,6 +416,10 @@ function createBot() {
       botState.connected = false;
       clearAllIntervals();
 
+      if (config.discord && config.discord.events.disconnect && reason !== 'Periodic Rejoin') {
+        sendDiscordWebhook(`[-] **Disconnected**: ${reason || 'Unknown'}`, 0xf87171); // Red
+      }
+
       if (config.utils['auto-reconnect']) {
         scheduleReconnect();
       }
@@ -324,6 +430,10 @@ function createBot() {
       botState.connected = false;
       botState.errors.push({ type: 'kicked', reason, time: Date.now() });
       clearAllIntervals();
+
+      if (config.discord && config.discord.events.disconnect) {
+        sendDiscordWebhook(`[!] **Kicked**: ${reason}`, 0xff0000); // Bright Red
+      }
 
       if (config.utils['auto-reconnect']) {
         scheduleReconnect();
@@ -437,9 +547,48 @@ function initializeModules(bot, mcData, defaultMove) {
   if (config.modules.combat) combatModule(bot, mcData);
   if (config.modules.beds) bedModule(bot, mcData);
   if (config.modules.chat) chatModule(bot);
-  // if (config.modules['console-commands']) consoleCommands(bot); // Handled globally now
+
+  // Periodic Rejoin
+  if (config.utils['periodic-rejoin'] && config.utils['periodic-rejoin'].enabled) {
+    periodicRejoin(bot);
+  }
 
   console.log('[Modules] All modules initialized!');
+}
+
+// Periodic Rejoin Module
+function periodicRejoin(bot) {
+  const min = config.utils['periodic-rejoin']['min-interval'] * 1000;
+  const max = config.utils['periodic-rejoin']['max-interval'] * 1000;
+
+  // Random delay between min and max
+  const delay = Math.floor(Math.random() * (max - min + 1)) + min;
+
+  console.log(`[Rejoin] Scheduled periodic rejoin in ${delay / 1000}s`);
+
+  // We use setTimeout here because we just want this to run once per connection
+  // The new bot instance will start its own timer
+  const timeoutId = setTimeout(() => {
+    if (bot && botState.connected) {
+      console.log('[Rejoin] Executing periodic rejoin...');
+      // Mark as intentional to potentially speed up next connect?
+      // For now, just end(), and let auto-reconnect handle it.
+      // Since we lowered base delay to 2000ms, it will be fast.
+      try {
+        bot.end('Periodic Rejoin');
+      } catch (e) {
+        console.log('[Rejoin] Error ending bot:', e.message);
+      }
+    }
+  }, delay);
+
+  // Track this specific timeout if we needed to clear it, 
+  // currently clearAllIntervals only clears list of intervals.
+  // Ideally, we should add this to a list of timeouts to clear, 
+  // but since we clear intervals on 'end', this timeout will lose its context naturally 
+  // or fire when bot is disconnected (check added).
+  // Better: Add to a global list if we want to be super clean, 
+  // but the check `if (bot && botState.connected)` is sufficient safety.
 }
 
 // ============================================================
@@ -653,41 +802,85 @@ rl.on('line', (line) => {
 });
 
 // ============================================================
-// CRASH RECOVERY
+// DISCORD WEBHOOK INTEGRATION
+// ============================================================
+function sendDiscordWebhook(content, color = 0x0099ff) {
+  if (!config.discord || !config.discord.enabled || !config.discord.webhookUrl || config.discord.webhookUrl.includes('YOUR_DISCORD')) return;
+
+  const protocol = config.discord.webhookUrl.startsWith('https') ? https : http;
+  const urlParts = new URL(config.discord.webhookUrl);
+
+  const payload = JSON.stringify({
+    username: config.name,
+    embeds: [{
+      description: content,
+      color: color,
+      timestamp: new Date().toISOString(),
+      footer: { text: 'Slobos AFK Bot' }
+    }]
+  });
+
+  const options = {
+    hostname: urlParts.hostname,
+    port: 443,
+    path: urlParts.pathname + urlParts.search,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': payload.length
+    }
+  };
+
+  const req = protocol.request(options, (res) => {
+    // console.log(`[Discord] Sent webhook: ${res.statusCode}`);
+  });
+
+  req.on('error', (e) => {
+    console.log(`[Discord] Error sending webhook: ${e.message}`);
+  });
+
+  req.write(payload);
+  req.end();
+}
+
+// ============================================================
+// CRASH RECOVERY - IMMORTAL MODE
 // ============================================================
 process.on('uncaughtException', (err) => {
   console.log(`[FATAL] Uncaught Exception: ${err.message}`);
-  console.log(err.stack);
+  // console.log(err.stack); // Optional: keep logs cleaner
   botState.errors.push({ type: 'uncaught', message: err.message, time: Date.now() });
 
-  // Don't exit - try to recover
+  // CRITICAL: DO NOT EXIT.
+  // The user wants the server to stay up "all the time no matter what".
+  // We just clear intervals and try to restart the bot logic.
   if (config.utils['auto-reconnect']) {
     clearAllIntervals();
-    scheduleReconnect();
+    // Wrap in a tiny timeout to prevent tight loops if the error is synchronous
+    setTimeout(() => {
+      scheduleReconnect();
+    }, 1000);
   }
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.log(`[FATAL] Unhandled Rejection: ${reason}`);
   botState.errors.push({ type: 'rejection', message: String(reason), time: Date.now() });
+  // Do not exit.
 });
 
-// Graceful shutdown
+// Graceful shutdown from external signals (still allowed to exit if system demands it)
 process.on('SIGTERM', () => {
-  console.log('[System] SIGTERM received, shutting down gracefully...');
-  clearAllIntervals();
-  if (bot) {
-    bot.end();
-  }
+  console.log('[System] SIGTERM received. Ignoring to stay alive? (Render might force kill)');
+  // If we mistakenly exit here, the web server dies. 
+  // User asked for "all the time on no matter what".
+  // Note: Render will SIGKILL if we don't exit, but this keeps us up as long as possible.
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
-  console.log('[System] SIGINT received, shutting down gracefully...');
-  clearAllIntervals();
-  if (bot) {
-    bot.end();
-  }
+  // Local Ctrl+C
+  console.log('[System] Manual stop requested. Exiting...');
   process.exit(0);
 });
 

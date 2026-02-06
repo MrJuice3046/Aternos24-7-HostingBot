@@ -17,22 +17,15 @@ A Minecraft bot that helps keep an Aternos server online 24/7 by automatically j
 *   **GitHub Account**
 *   **Aternos Server**
 *   **Render Account** (for 24/7 hosting)
-*   **Common Sense!** 🧠
+*   **Common Sense!** 🧠        
 
 ---
 
 ## 🚀 Setup Guide
 
-We have made setup super easy! You have two ways to view the guide:
+We have made setup super easy! Check out the guide below:
 
-### Interactive Web Guide
-Once you start the bot (`npm start`), open your browser to:
-[**http://localhost:5000/tutorial**](http://localhost:5000/tutorial)
-
-It has a step-by-step interactive guide built right into the bot!
-
-### Google Doc
-If you prefer reading a document, check out our [**Detailed Google Doc Guide**](https://docs.google.com/document/d/1Fl0dRzP6O30ehp5-QcaB11IobF8I1JJhKUipzCWiCYA/edit?tab=t.0).
+[**Detailed Google Doc Guide**](https://docs.google.com/document/d/1Fl0dRzP6O30ehp5-QcaB11IobF8I1JJhKUipzCWiCYA/edit?tab=t.0).
 
 ---
 
