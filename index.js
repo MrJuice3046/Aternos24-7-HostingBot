@@ -408,10 +408,14 @@ function createBot() {
 
       // Start all modules
       initializeModules(bot, mcData, defaultMove);
+
+      // Setup enhanced Leave/Rejoin logic
+      setupLeaveRejoin(bot, createBot);
     });
 
     // Handle disconnection
     bot.on('end', (reason) => {
+      const wasSpawned = botState.connected;
       console.log(`[Bot] Disconnected: ${reason || 'Unknown reason'}`);
       botState.connected = false;
       clearAllIntervals();
@@ -421,11 +425,16 @@ function createBot() {
       }
 
       if (config.utils['auto-reconnect']) {
-        scheduleReconnect();
+        // If we were spawned, leaveRejoin.js handles reconnection.
+        // If we failed BEFORE spawn, we must reconnect here.
+        if (!wasSpawned) {
+          scheduleReconnect();
+        }
       }
     });
 
     bot.on('kicked', (reason) => {
+      const wasSpawned = botState.connected;
       console.log(`[Bot] Kicked: ${reason}`);
       botState.connected = false;
       botState.errors.push({ type: 'kicked', reason, time: Date.now() });
@@ -436,7 +445,9 @@ function createBot() {
       }
 
       if (config.utils['auto-reconnect']) {
-        scheduleReconnect();
+        if (!wasSpawned) {
+          scheduleReconnect();
+        }
       }
     });
 
@@ -557,38 +568,12 @@ function initializeModules(bot, mcData, defaultMove) {
 }
 
 // Periodic Rejoin Module
+const setupLeaveRejoin = require('./leaveRejoin');
+
+// Periodic Rejoin Module - Handled by leaveRejoin.js now
 function periodicRejoin(bot) {
-  const min = config.utils['periodic-rejoin']['min-interval'] * 1000;
-  const max = config.utils['periodic-rejoin']['max-interval'] * 1000;
-
-  // Random delay between min and max
-  const delay = Math.floor(Math.random() * (max - min + 1)) + min;
-
-  console.log(`[Rejoin] Scheduled periodic rejoin in ${delay / 1000}s`);
-
-  // We use setTimeout here because we just want this to run once per connection
-  // The new bot instance will start its own timer
-  const timeoutId = setTimeout(() => {
-    if (bot && botState.connected) {
-      console.log('[Rejoin] Executing periodic rejoin...');
-      // Mark as intentional to potentially speed up next connect?
-      // For now, just end(), and let auto-reconnect handle it.
-      // Since we lowered base delay to 2000ms, it will be fast.
-      try {
-        bot.end('Periodic Rejoin');
-      } catch (e) {
-        console.log('[Rejoin] Error ending bot:', e.message);
-      }
-    }
-  }, delay);
-
-  // Track this specific timeout if we needed to clear it, 
-  // currently clearAllIntervals only clears list of intervals.
-  // Ideally, we should add this to a list of timeouts to clear, 
-  // but since we clear intervals on 'end', this timeout will lose its context naturally 
-  // or fire when bot is disconnected (check added).
-  // Better: Add to a global list if we want to be super clean, 
-  // but the check `if (bot && botState.connected)` is sufficient safety.
+  // Deprecated in favor of leaveRejoin.js
+  console.log('[Rejoin] Using new leaveRejoin system.');
 }
 
 // ============================================================
