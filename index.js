@@ -335,7 +335,7 @@ function addInterval(callback, delay) {
 function getReconnectDelay() {
   // Aggressive reconnection: fast, flat delay or very subtle backoff
   const baseDelay = config.utils['auto-reconnect-delay'] || 2000;
-  const maxDelay = config.utils['max-reconnect-delay'] || 30000;
+  const maxDelay = config.utils['max-reconnect-delay'] || 15000;
 
   // Use a much gentler backoff or just a flat delay if user wants "lower"
   // Current logic: attempts * 1000 + base, capped at max
@@ -535,7 +535,7 @@ function initializeModules(bot, mcData, defaultMove) {
         }, 100);
         botState.lastActivity = Date.now();
       }
-    }, 30000); // Jump every 30 seconds
+    }, 3000); // Jump every 30 seconds
 
     if (config.utils['anti-afk'].sneak) {
       bot.setControlState('sneak', true);

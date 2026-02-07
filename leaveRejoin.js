@@ -57,7 +57,7 @@ function setupLeaveRejoin(bot, createBot) {
         }
 
         // Cap at 30s max
-        delay = Math.min(delay, 30000)
+        delay = Math.min(delay, 15000)
 
         logThrottled(`[AFK] Rejoin scheduled in ${Math.round(delay / 1000)}s (reason: ${reason}, attempt: ${reconnectAttempts})`)
 
@@ -83,7 +83,7 @@ function setupLeaveRejoin(bot, createBot) {
         // Stay connected: 2 minutes -> 15 minutes (More realistic AFK behavior)
         // User asked for "100ms -> 240s" but 100ms is too short for stability.
         // I'll set it to 60s -> 300s (1m - 5m) to ensure it stays online a bit.
-        const stayTime = randomMs(60000, 300000)
+        const stayTime = randomMs(60000, 15000)
 
         logThrottled(`[AFK] Will leave in ${Math.round(stayTime / 1000)} seconds`)
 
