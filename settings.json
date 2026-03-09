@@ -1,13 +1,13 @@
 {
-  "name": "AFK Bot",
+  "name": "SKIBIDI67",
   "bot-account": {
-    "username": "Technoblade",
+    "username": "SKIBIDI67",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "ricoiscool.aternos.me",
-    "port": 56559,
+    "ip": "nightmaresmp4625.aternos.me",
+    "port": 22497,
     "version": "1.21.1"
   },
   "position": {
@@ -26,7 +26,7 @@
       "sneak": true
     },
     "chat-messages": {
-      "enabled": true,
+      "enabled": false,
       "repeat": true,
       "repeat-delay": 120,
       "messages": [
