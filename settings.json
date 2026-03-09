@@ -8,7 +8,7 @@
   "server": {
     "ip": "Steinersmp.aternos.me:35566",
     "port": 35566,
-    "version": "1.21.1"
+    "version": "1.21.11"
   },
   "position": {
     "enabled": true,
