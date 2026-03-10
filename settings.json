@@ -1,13 +1,13 @@
 {
-  "name": "AFK Bot",
+  "name": "chandrubot",
   "bot-account": {
-    "username": "imgonnacream",
-    "password": "",
+    "username": "chandrppu",
+    "password": "meapannan",
     "type": "offline"
   },
   "server": {
-    "ip": "sigmarizz111.aternos.me",
-    "port": 45899,
+    "ip": "chandru.aternos.me",
+    "port": 29252,
     "version": "",
     "try-creative": false
   },

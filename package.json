@@ -1,5 +1,5 @@
 {
-  "name": "minecraft-afk-bot",
+  "name": "chandrubot",
   "version": "2.2",
   "description": "Robust AFK bot for Minecraft servers with infinite uptime.",
   "main": "index.js",
