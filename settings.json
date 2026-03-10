@@ -6,8 +6,8 @@
     "type": "offline"
   },
   "server": {
-    "ip": "sigmarizz111.aternos.me",
-    "port": 45899,
+    "ip": "Aveaks.aternos.me:11835",
+    "port": 11835,
     "version": "",
     "try-creative": false
   },
