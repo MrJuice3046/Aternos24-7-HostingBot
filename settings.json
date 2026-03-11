@@ -1,14 +1,14 @@
 {
   "name": "AFK Bot",
   "bot-account": {
-    "username": "imgonnacream",
+    "username": "abc",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "sigmarizz111.aternos.me",
-    "port": 45899,
-    "version": "",
+    "ip": "idrs.aternos.me",
+    "port": 36273,
+    "version": "1.21.1",
     "try-creative": false
   },
   "position": {
