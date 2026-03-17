@@ -1,13 +1,13 @@
 {
-  "name": "AFK Bot",
+  "name": "Nevex247",
   "bot-account": {
-    "username": "imgonnacream",
+    "username": "iNevex97",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "7L_SMP_is_real.aternos.me",
-    "port": 62213,
+    "ip": "CZfunSmp.aternos.me",
+    "port": 64190,
     "version": "",
     "try-creative": false
   },
@@ -31,9 +31,9 @@
       "repeat": true,
       "repeat-delay": 120,
       "messages": [
-        "I'm a regular player",
-        "Subscribe to Slobos!",
-        "I like to play Minecraft!"
+        "Jsem tu aby běžel server",
+        "Nevex na topu",
+        "mam rád netherite"
       ]
     },
     "chat-log": true,
