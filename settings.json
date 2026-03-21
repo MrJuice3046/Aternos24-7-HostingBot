@@ -29,11 +29,26 @@
     "chat-messages": {
       "enabled": true,
       "repeat": true,
-      "repeat-delay": 120,
+      "repeat-delay": 240,
       "messages": [
-        "I'm a regular player",
-        "Subscribe to Slobos!",
-        "I like to play Minecraft!"
+        "How Are You Guys?",
+        "I am new and just exploring the server!",
+        "The server looks great but you should build more and make the server attractive!",
+        "I hope you understand my advices!",
+        "If you find any glitch or problem, report to the server website - /n https://FriendsMasterHub.onrender.com",
+        "Owner appointed me to look out this server.",
+        "Try to not to die because if you die you will lose your items",
+        "Make a beautiful house to gain attention and to live in",
+        "Try not to get killed by players because this will cause your 1 heart to be sent to the killer!",
+        "Minecraft is a wonderful game which allows us to create, build, fight, explore and more and Aternos is Minecraft server hosting which provides server for free in 4GB Shared RAM",
+        "This server is also based on Render",
+        "I am just chilling and having a coffee break... You should also try.",
+        "If you try to abuse me you will be banned because I record every message about me.",
+        "IP: FriendsMasterHub.aternos.me , Port: 19276",
+        "IP leaking is not allowed, if you try you will be banned and IP will be changed!",
+        "Don't you try to X-Ray because this server shows random ORES in X-Ray Mode. Haha.",
+        "Hello Hello Hello, Do you want to talk to me???",
+        "You guys look good players."
       ]
     },
     "chat-log": true,
@@ -45,7 +60,7 @@
     "enabled": true,
     "circle-walk": {
       "enabled": true,
-      "radius": 4,
+      "radius": 8,
       "speed": 3000
     },
     "look-around": {
