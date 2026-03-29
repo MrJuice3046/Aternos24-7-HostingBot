@@ -1,13 +1,13 @@
 {
-  "name": "AFK Bot",
+  "name": "OWO",
   "bot-account": {
     "username": "imgonnacream",
-    "password": "",
+    "password": "Kurtlouie",
     "type": "offline"
   },
   "server": {
-    "ip": "7L_SMP_is_real.aternos.me",
-    "port": 62213,
+    "ip": "sg-02.freezehost.pro",
+    "port": 8504,
     "version": "",
     "try-creative": false
   },
@@ -32,7 +32,7 @@
       "repeat-delay": 120,
       "messages": [
         "I'm a regular player",
-        "Subscribe to Slobos!",
+        "i love this game!",
         "I like to play Minecraft!"
       ]
     },
