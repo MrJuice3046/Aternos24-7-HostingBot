@@ -1,13 +1,13 @@
 {
   "name": "AFK Bot",
   "bot-account": {
-    "username": "imgonnacream",
-    "password": "",
+    "username": "NEILBOT",
+    "password": "NEILBOT",
     "type": "offline"
   },
   "server": {
-    "ip": "7L_SMP_is_real.aternos.me",
-    "port": 62213,
+    "ip": "luffytrills-247.aternos.me:24192",
+    "port": 24192,
     "version": "",
     "try-creative": false
   },
