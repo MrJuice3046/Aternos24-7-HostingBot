@@ -9,7 +9,7 @@
     "ip": "HAD_World.aternos.me",
     "port": 11022,
     "version": "",
-    "try-creative": false
+    "try-creative": true
   },
   "position": {
     "enabled": true,
