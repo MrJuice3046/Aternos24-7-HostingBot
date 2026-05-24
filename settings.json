@@ -1,20 +1,20 @@
 {
   "name": "AFK Bot",
   "bot-account": {
-    "username": "imgonnacream",
+    "username": "COZY_Farmer",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "7L_SMP_is_real.aternos.me",
-    "port": 62213,
+    "ip": "COZYGGSMP.aternos.me",
+    "port": 56155,
     "version": "",
     "try-creative": false
   },
   "position": {
     "enabled": true,
     "x": 0,
-    "y": 100,
+    "y": 67,
     "z": 0
   },
   "utils": {
