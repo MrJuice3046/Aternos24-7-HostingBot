@@ -1,13 +1,13 @@
 {
-  "name": "AFK Bot",
+  "name": "primeBOT",
   "bot-account": {
     "username": "imgonnacream",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "7L_SMP_is_real.aternos.me",
-    "port": 62213,
+    "ip": "Survival505.aternos.me",
+    "port": 37399,
     "version": "",
     "try-creative": false
   },
