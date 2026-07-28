@@ -6,9 +6,9 @@
     "type": "offline"
   },
   "server": {
-    "ip": "7L_SMP_is_real.aternos.me",
-    "port": 62213,
-    "version": "",
+    "ip": "norm.mcsh.io",
+    "port": 25565,
+    "version": "1.21.1",
     "try-creative": false
   },
   "position": {
@@ -19,7 +19,7 @@
   },
   "utils": {
     "auto-auth": {
-      "enabled": true,
+      "enabled": false,
       "password": "chalol78"
     },
     "anti-afk": {
@@ -39,7 +39,12 @@
     "chat-log": true,
     "auto-reconnect": true,
     "auto-reconnect-delay": 2000,
-    "max-reconnect-delay": 120000
+    "max-reconnect-delay": 120000,
+    "player-detection": {
+      "enabled": true,
+      "disconnect-on-join": true,
+      "reconnect-on-empty": true
+    }
   },
   "movement": {
     "enabled": true,
