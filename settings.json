@@ -1,14 +1,14 @@
 {
-  "name": "AFK Bot",
+  "name": "AFK bot",
   "bot-account": {
     "username": "imgonnacream",
-    "password": "",
+    "password": "godiloveyou",
     "type": "offline"
   },
   "server": {
-    "ip": "7L_SMP_is_real.aternos.me",
-    "port": 62213,
-    "version": "",
+    "ip": "Lostpie.aternos.me",
+    "port": 37249,
+    "version": "1.21.4",
     "try-creative": false
   },
   "position": {
