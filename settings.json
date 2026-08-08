@@ -69,8 +69,11 @@
     "auto-eat": true
   },
   "beds": {
-    "pick-up-day": false,
-    "place-night": false
+    "pick-up-day": true,
+    "place-night": true
+    
+    
+    
   },
   "discord": {
     "enabled": false,
