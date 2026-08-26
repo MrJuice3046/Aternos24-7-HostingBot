@@ -1,14 +1,14 @@
 {
   "name": "AFK Bot",
   "bot-account": {
-    "username": "YourBotUsername",
+    "username": "rehanbot",
     "password": "",
-    "type": "offline"
+    "type": "online"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
-    "version": "",
+    "ip": "juicyapplesmp.aternos.me",
+    "port": 29065,
+    "version": "1.21.11",
     "try-creative": false
   },
   "position": {
