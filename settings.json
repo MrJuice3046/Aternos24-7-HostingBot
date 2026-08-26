@@ -6,8 +6,8 @@
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": "alioui3893.aternos.me",
+    "port": 51865,
     "version": "",
     "try-creative": false
   },
