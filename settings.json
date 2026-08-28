@@ -6,8 +6,8 @@
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": "HerosSMPs1.aternos.me",
+    "port": 48018,
     "version": "",
     "try-creative": false
   },
