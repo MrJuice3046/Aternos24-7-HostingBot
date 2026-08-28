@@ -9,7 +9,7 @@ const http = require('http');
 const https = require('https');
 
 const app = express();
-const PORT = process.HerosSMPs1.aternos.me|| 4018;
+const PORT = process.HerosSMPs1.aternos.me|| 48018;
 
 let bot = null;
 let activeIntervals = [];
