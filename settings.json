@@ -1,13 +1,13 @@
 {
-  "name": "AFK Bot",
+  "name": "Bot",
   "bot-account": {
-    "username": "YourBotUsername",
+    "username": "bot",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": "5.83.132.171",
+    "port": 26650,
     "version": "",
     "try-creative": false
   },
@@ -19,7 +19,7 @@
   },
   "utils": {
     "auto-auth": {
-      "enabled": true,
+      "enabled": false,
       "password": "YourAuthPassword"
     },
     "anti-afk": {
