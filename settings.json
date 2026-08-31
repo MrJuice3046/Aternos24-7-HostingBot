@@ -1,15 +1,15 @@
 {
   "name": "AFK Bot",
   "bot-account": {
-    "username": "YourBotUsername",
+    "username": "afk",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
-    "version": "",
-    "try-creative": false
+    "ip": "mcfleetOG95.aternos.me",
+    "port": 18357,
+    "version": "26.2",
+    "try-creative": true
   },
   "position": {
     "enabled": true,
@@ -76,7 +76,7 @@
     "webhookUrl": "YOUR_DISCORD_WEBHOOK_URL_HERE",
     "events": {
       "connect": true,
-      "disconnect": true,
+      "disconnect": false,
       "chat": false
     }
   },
