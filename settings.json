@@ -1,14 +1,14 @@
 {
-  "name": "AFK Bot",
+  "name": "nobot",
   "bot-account": {
-    "username": "YourBotUsername",
+    "username": "noBot",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
-    "version": "",
+    "ip": "AridZa.aternos.me:45668",
+    "port": 45668,
+    "version": "26.2",
     "try-creative": false
   },
   "position": {
@@ -19,7 +19,7 @@
   },
   "utils": {
     "auto-auth": {
-      "enabled": true,
+      "enabled": false,
       "password": "YourAuthPassword"
     },
     "anti-afk": {
@@ -82,6 +82,6 @@
   },
   "chat": {
     "respond": true,
-    "tpWhitelist": ["YourMinecraftUsername"]
+    "tpWhitelist": ["AridAlZaman"]
   }
 }
