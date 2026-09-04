@@ -1,7 +1,7 @@
 {
-  "name": "AFK Bot",
+  "name": "nobot",
   "bot-account": {
-    "username": "Bot",
+    "username": "noBot",
     "password": "",
     "type": "offline"
   },
@@ -19,7 +19,7 @@
   },
   "utils": {
     "auto-auth": {
-      "enabled": true,
+      "enabled": false,
       "password": "YourAuthPassword"
     },
     "anti-afk": {
@@ -82,6 +82,6 @@
   },
   "chat": {
     "respond": true,
-    "tpWhitelist": ["YourMinecraftUsername"]
+    "tpWhitelist": ["AridAlZaman"]
   }
 }
