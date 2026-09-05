@@ -1,14 +1,14 @@
 {
   "name": "AFK Bot",
-  "bot-account": {
+  "bot-account": {soham99
     "username": "YourBotUsername",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
-    "version": "",
+    "ip": "Sohamschoolserver.aternos.me:15086.server.ip",
+    "port": 15086a,
+    "version": "1.21.1",
     "try-creative": false
   },
   "position": {
