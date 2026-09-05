@@ -6,8 +6,8 @@
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": "LifeSteel-Pyfx.aternos.me",
+    "port": 14486,
     "version": "",
     "try-creative": false
   },
