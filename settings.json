@@ -6,8 +6,8 @@
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": "World_of_smp7.aternos.me",
+    "port": 40597,
     "version": "",
     "try-creative": false
   },
@@ -85,3 +85,4 @@
     "tpWhitelist": ["YourMinecraftUsername"]
   }
 }
+ 
