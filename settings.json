@@ -1,13 +1,13 @@
 {
-  "name": "AFK Bot",
+  "name": "Bhaiya Ka Chacha",
   "bot-account": {
     "username": "YourBotUsername",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": "aamm-UXfy.aternos.me",
+    "port": 11971,
     "version": "",
     "try-creative": false
   },
