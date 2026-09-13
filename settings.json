@@ -6,8 +6,8 @@
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": "ALUUSMP.aternos.me",
+    "port": 58233,
     "version": "",
     "try-creative": false
   },
