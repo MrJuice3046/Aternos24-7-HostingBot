@@ -6,8 +6,8 @@
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": "BestCraftIL.aternos.me",
+    "port": 31529,
     "version": "",
     "try-creative": false
   },
