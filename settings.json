@@ -1,13 +1,13 @@
 {
   "name": "AFK Bot",
   "bot-account": {
-    "username": "YourBotUsername",
+    "username": "Staff",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": "rebornersmp.aternos.me",
+    "port": 15145,
     "version": "",
     "try-creative": false
   },
@@ -29,10 +29,9 @@
     "chat-messages": {
       "enabled": true,
       "repeat": true,
-      "repeat-delay": 120,
+      "repeat-delay": 300,
       "messages": [
-        "I'm a regular player",
-        "I like to play Minecraft!"
+        "T am worker of Wiki Bhai",
       ]
     },
     "chat-log": true,
