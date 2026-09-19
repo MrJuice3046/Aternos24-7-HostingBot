@@ -111,12 +111,12 @@ Open settings.json and fill in these fields:
 
 ```json
 "bot-account": {
-  "username": "YourBotUsername"
+  "username": "MrJuice3046"
 }
 
 "server": {
-  "ip": "your.server.ip",
-  "port": 25565
+  "ip": "Thebirthdaysmp",
+  "port": 56666
 }
 
 "utils": {
@@ -131,7 +131,7 @@ Add your Minecraft username to the tp whitelist so only you can move the bot:
 
 ```json
 "chat": {
-  "tpWhitelist": ["YourMinecraftUsername"]
+  "tpWhitelist": ["Screamer5314"]
 }
 ```
 
