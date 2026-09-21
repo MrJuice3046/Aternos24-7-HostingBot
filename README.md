@@ -1,4 +1,4 @@
-# Aternos 24/7 Hosting Bot
+g# Aternos 24/7 Hosting Bot
 
 A Minecraft bot that joins your server and keeps it alive around the clock.
 It reconnects automatically if kicked or if the server restarts, and can be
