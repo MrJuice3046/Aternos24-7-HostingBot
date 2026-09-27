@@ -110,19 +110,19 @@ networks.
 Open settings.json and fill in these fields:
 
 ```json
-"bot-account": {
+"bot-account": { RivalGans
   "username": "YourBotUsername"
 }
 
-"server": {
+"server": { MCFleet-vRXz.aternos.me
   "ip": "your.server.ip",
-  "port": 25565
+  "port": 50490
 }
 
-"utils": {
+"utils": { 
   "auto-auth": {
     "enabled": true,
-    "password": "YourAuthPassword"
+    "password": "kanhaiya12345"
   }
 }
 ```
@@ -152,7 +152,6 @@ Best for: people who want the easiest setup and reliable free hosting.
 
 Railway gives you $5 of credit per month on the free tier, which is enough to
 run this bot 24/7. It does not sleep the way Render does.
-
 1. Go to railway.app and sign in with GitHub.
 2. Click New Project, then Deploy from GitHub Repo.
 3. Select your repository.
