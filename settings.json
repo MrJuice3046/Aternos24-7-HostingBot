@@ -1,13 +1,13 @@
 {
-  "name": "AFK Bot",
+  "name": "Admin",
   "bot-account": {
-    "username": "YourBotUsername",
+    "username": "Admin",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": " SkautPoln.aternos.me:42197",
+    "port": 42197,
     "version": "",
     "try-creative": false
   },
