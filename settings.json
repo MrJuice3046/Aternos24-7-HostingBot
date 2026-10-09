@@ -1,4 +1,4 @@
-{
+8{
   "name": "AFK Bot",
   "bot-account": {
     "username": "YourBotUsername",
@@ -6,8 +6,8 @@
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": "Naitikchauahan.aternos.me",
+    "port": 19132,
     "version": "",
     "try-creative": false
   },
