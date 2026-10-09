@@ -6,8 +6,8 @@
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": Demon-8206.aternos.me
+    "port": 56042,
     "version": "",
     "try-creative": false
   },
