@@ -6,8 +6,8 @@
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": "TOKEN-STEEL.aternos.me",
+    "port": 55149,
     "version": "",
     "try-creative": false
   },
