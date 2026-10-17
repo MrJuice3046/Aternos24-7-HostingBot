@@ -1,13 +1,13 @@
 {
   "name": "AFK Bot",
   "bot-account": {
-    "username": "YourBotUsername",
+    "username": "Sub To HaughtyTrex",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": "Heritage-MC.aternos.me",
+    "port": 18647,
     "version": "",
     "try-creative": false
   },
