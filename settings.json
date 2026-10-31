@@ -6,8 +6,8 @@
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": "KingFallSMP.aternos.me",
+    "port": 47809,
     "version": "",
     "try-creative": false
   },
