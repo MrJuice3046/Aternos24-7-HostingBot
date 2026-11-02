@@ -1,13 +1,13 @@
 {
-  "name": "AFK Bot",
+  "name": "DOFIXBot",
   "bot-account": {
-    "username": "YourBotUsername",
+    "username": "DOFIX",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": "gnmoroco.aternos.me",
+    "port": 26843,
     "version": "",
     "try-creative": false
   },
