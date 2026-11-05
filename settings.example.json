@@ -8,7 +8,7 @@
   "server": {
     "ip": "VirgoYT.aternos.me",
     "port": 12652,
-    "version": "",
+    "version": "26.3",
     "proxy-version-fallback": "26.1",
     "try-creative": false
   },

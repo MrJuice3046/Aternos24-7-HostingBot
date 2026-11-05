@@ -1,0 +1,29 @@
+# Native Minecraft 26.3 test results
+
+Date: 2026-11-06
+
+## Local checks
+
+- `npm install --ignore-scripts`: passed.
+- `npm test`: passed; 8 tests.
+- Protocol resolution: passed; `26.3` maps to protocol `777`.
+- Data resolution: passed; `26.3` maps to data version `5023`.
+- Physics loader: passed for `26.3`.
+- Chunk loader: passed for `26.3`.
+- Native version resolver: passed; configured `26.3` remains `26.3` and does not fall back to `26.1`.
+- `settings.example.json`: valid JSON.
+- `npm ls --depth=0`: passed.
+
+## Authorized server smoke test
+
+Command:
+
+```bash
+timeout -s INT 60s npm start
+```
+
+Target: `VirgoYT.aternos.me:12652`, using a temporary ignored `settings.json` and direct native 26.3 configuration.
+
+Result: **NOT VERIFIED**. The client attempted native connections and received `socketClosed` four times before the timeout stopped it. It never reached a 26.3 spawn. This does not prove a protocol incompatibility; likely causes include the Aternos server being offline/restarting, the target being behind a proxy or ViaVersion path, or the remote server closing direct native connections.
+
+No credentials were written to Git.

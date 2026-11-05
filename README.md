@@ -21,17 +21,16 @@ and its coordinates.
 
 ## Compatibility status
 
-The current published dependency set is verified only for the Minecraft versions
-supported by Mineflayer 4.39.0 and minecraft-data 3.119.0. The upstream
-Mineflayer documentation currently lists support through Java Edition 26.1.
+The project now uses an experimental native 26.3 stack: the upstream Mineflayer
+26.3 commit, the upstream protocol-777 branch, vendored official 26.3 data,
+and local compatibility patches for Prismarine physics and chunk dispatch.
 
-**Native Minecraft Java Edition 26.3 is not supported by the published
-Prismarine packages used here.** Java 26.3 uses protocol 777, while this
-dependency set supports a maximum client version of 26.1. The bot detects
-`server.version: "26.3"` and uses a 26.1 client for proxy translation, with a
-clear warning in the logs. This requires ViaVersion or ViaProxy on the server
-path; it does not provide native 26.3 support. A version string alone cannot
-add packet definitions.
+**Native Minecraft Java Edition 26.3 is implemented experimentally, not claimed
+as stable.** The vendored data resolves protocol 777 and data version 5023.
+The project also loads the required physics and chunk implementations for
+26.3. A real login, configuration, chunk, movement, and long-running session
+against an authorized 26.3 server is still required before calling the stack
+fully verified.
 
 The compatibility report is in
 [`protocol-compatibility-report.md`](protocol-compatibility-report.md). It
@@ -122,8 +121,8 @@ networks.
 
 1. Install Paper or Bukkit on your server.
 2. Enable offline/cracked mode so the bot can join without a paid account.
-3. Install ViaVersion (or place ViaProxy in front of the server). The bot uses
-   a supported 26.1 client when connecting to a configured 26.3 server.
+3. For native 26.3 testing, do not use ViaVersion or ViaProxy between the bot
+   and the authorized 26.3 server. The bot now negotiates protocol 777 directly.
 4. In server.properties, set player-idle-timeout=0.
    This stops Minecraft from kicking the bot for being idle.
 
@@ -360,8 +359,8 @@ server or bypass authentication and hosting restrictions.
 | bot-account.type | Set to "offline" for cracked servers |
 | server.ip | Your server's IP address |
 | server.port | Your server's port (default 25565) |
-| server.version | Server version; `26.3` uses the supported 26.1 proxy client |
-| server.proxy-version-fallback | Supported client version used for proxy translation |
+| server.version | Native server version; use `26.3` for protocol 777 |
+| server.proxy-version-fallback | Optional fallback for an unsupported target version |
 | utils.auto-auth.enabled | Turn on if the server uses AuthMe or similar |
 | utils.chat-messages.repeat-delay | Seconds between periodic chat messages |
 | movement.circle-walk.enabled | Bot walks in a circle to appear human |

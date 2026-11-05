@@ -1,15 +1,15 @@
 # Minecraft Java 26.3 Compatibility Report
 
 **Repository:** `itsdazzyprince3-sudo/Aternos24-7-HostingBot`
-**Audited commit:** `d67c88657b0d510fbe2e83ab0b699152f6968e34` (`Prepare Minecraft 26.3 compatibility`)
+**Audited commit:** native 26.3 implementation commit pending
 **Audit date:** 2026-11-06
-**Status:** **Not verified for native 26.3; unsupported by the published dependency set**
+**Status:** **Experimental native 26.3 stack; local protocol/data/physics/chunk smoke tests pass; server integration not verified**
 
 ## Executive finding
 
-The checked-out project is not currently a working application without a user-provided private configuration: the latest commit removes `settings.json`, while `index.js` still executes `require('./settings.json')` at startup. The commit also pins published Mineflayer and minecraft-data versions rather than adding 26.3 protocol support.
+The runtime continues to require a user-provided private `settings.json`, as intended. The implementation now uses an installable local wrapper around the official 26.3 data tree, the exact upstream Mineflayer 26.3 commit, the upstream protocol-777 branch, and minimal local Prismarine physics/chunk dispatch patches.
 
-Native Minecraft Java 26.3 support is available in upstream development branches, but not in the published npm versions used by this repository. The upstream Mineflayer 26.3 branch depends on the unreleased `PrismarineJS/node-minecraft-protocol#pc26_3` branch, while the 26.3 minecraft-data change is an open pull request and is not available as the published `minecraft-data@3.119.0` package. No authorized private 26.3 server was available for a protocol-level login test in this audit, so no native compatibility claim is made.
+Native Minecraft Java 26.3 support is assembled from upstream development sources rather than stable npm releases. The local stack resolves protocol **777**, data version **5023**, physics, and chunk dispatch. No full native 26.3 claim is made until an authorized server completes login, configuration, chunk, entity, movement, and sustained-session tests.
 
 ## Repository audit
 
@@ -21,13 +21,13 @@ The repository contains seven tracked files: `.gitignore`, `LICENSE`, `README.md
 
 The direct protocol-related dependencies are:
 
-- `mineflayer@4.39.0`;
-- `minecraft-data@3.119.0`;
+- Mineflayer commit `78424bf5abf0f351b1a3751b2f8e0423ab54b350`;
+- vendored official minecraft-data commit `e4cbec4b17815d6ce8d8ba991dd3b2d9d8f4a57d`;
 - `mineflayer-pathfinder@2.4.5`.
 
-The lockfile resolves `minecraft-protocol@1.68.0` transitively through Mineflayer. It also resolves Prismarine components for authentication, blocks, chunks, entities, items, NBT, physics, registry, windows, and world data. These packages are the relevant implementations for packet definitions, protocol state transitions, registries, block/item/entity data, world/chunk parsing, compression, encryption, keep-alive behavior, and Mineflayer movement.
+The lockfile resolves the upstream `pc26_3` protocol branch transitively through Mineflayer. Local vendored physics and chunk packages add only the missing 26.3 dispatch/feature entries documented in the dependency matrix.
 
-The published npm registry currently reports Mineflayer `4.39.0`, minecraft-data `3.119.0`, minecraft-protocol `1.68.0`, and mineflayer-pathfinder `2.4.5`. The installed dependency tree matches the lockfile. The published Mineflayer documentation states support through Minecraft 26.1, not 26.3. [2]
+The published Mineflayer documentation still lists stable support only through 26.1. This project therefore labels the native 26.3 stack experimental, despite local protocol/data resolution passing. [2]
 
 Minecraft Java 26.3 is protocol version **777**, data version **5023**, and Java version **25**. [1] [5] The upstream minecraft-data issue records the 26.3 support request as open and links pull request #1300. The upstream Mineflayer 26.3 branch is commit `78424bf5abf0f351b1a3751b2f8e0423ab54b350`; it adds 26.3 to tested versions and points `minecraft-protocol` at the unreleased `pc26_3` branch. The corresponding node-minecraft-protocol branch is commit `a3c018efbf1b8645f16427e7b4a8185ea4218ee2`.
 
@@ -37,13 +37,13 @@ A material 26.3 behavior change is documented in Mineflayer issue #4189: [3] van
 
 | Area | Current repository | 26.3 assessment |
 |---|---|---|
-| Protocol version detection | Delegated to published minecraft-protocol/minecraft-data | Cannot resolve native 26.3 from the published packages |
-| Handshake/login/configuration | Delegated to Mineflayer and minecraft-protocol 1.68.0 | Not verified for protocol 777 |
-| Play-state packet schemas | Published protocol data through 26.1 | 26.3 schemas are only in upstream development work |
-| Registries/items/blocks/entities | Published minecraft-data 3.119.0 | 26.3 data is not published in the installed package |
-| Chunks/world parsing | Transitive Prismarine packages | Not verified against 26.3 data and registry changes |
-| Encryption/compression/keep-alive | Transitive minecraft-protocol | Existing implementation is usable only for supported versions; no 26.3 test |
-| Movement/tick handling | Published Mineflayer 4.39.0 | Known 26.3 failure: missing `client_tick_end` behavior |
+| Protocol version detection | Vendored data plus upstream protocol branch | Resolves native 26.3 / protocol 777 locally |
+| Handshake/login/configuration | Upstream Mineflayer commit and protocol branch | Local construction passes; live login pending |
+| Play-state packet schemas | Official 26.3 data and protocol branch | Local package loads; live packet test pending |
+| Registries/items/blocks/entities | Official 26.3 data tree | Loader resolves 26.3; live entity/chunk test pending |
+| Chunks/world parsing | Local prismarine-chunk 26.3 dispatch patch | Loader passes; real chunk decode pending |
+| Encryption/compression/keep-alive | Upstream protocol branch | Not independently verified against the target server |
+| Movement/tick handling | Upstream Mineflayer 26.3 commit | Client tick-end code is present; sustained movement test pending |
 | Dashboard/reconnect/features | Project code, independent of protocol version | Preserved; startup is blocked by missing config |
 
 ## Changes made after the read-only audit
@@ -55,20 +55,22 @@ A material 26.3 behavior change is documented in Mineflayer issue #4189: [3] van
 - Restored graceful SIGINT/SIGTERM shutdown so the bot closes timers, listeners, sockets, and the HTTP server cleanly.
 - Corrected Discord webhook port selection for explicit HTTP/HTTPS URLs.
 - Added `lib/version.js` to validate the installed protocol/data version intersection.
-- Added a deliberate `26.3` to `26.1` client fallback for ViaVersion/ViaProxy translation, with a warning that native 26.3 is not supported.
-- Added six unit tests covering supported versions, fallback selection, and invalid configuration.
+- Added the official 26.3 data tree under `vendor/minecraft-data` with the standard loader wrapper.
+- Added local 26.3 mappings for `prismarine-physics` and `prismarine-chunk`.
+- Added native protocol/data/physics/chunk smoke tests.
 
-This conservative choice is intentional. The available upstream 26.3 work is not a published, end-to-end release, and the environment did not provide an authorized 26.3 server for login, configuration, play, packet serialization, and regression testing.
+This remains experimental because the upstream 26.3 work is not a stable end-to-end release and a full authorized server integration test is still pending.
 
 ## Test results
 
-- `npm ci`: **passed**; 214 packages installed.
+- `npm install --ignore-scripts`: **passed**; experimental native stack installed.
 - `node --check index.js`: **passed**.
-- `npm test`: **passed**; syntax check plus six version-resolution unit tests.
+- `npm test`: **passed**; eight tests covering native data/protocol resolution, physics/chunk loading, version selection, fallback behavior, and invalid configuration.
 - `npm ls --depth=0`: **passed**; direct dependencies match the lockfile.
-- Startup smoke test: **passed**; a temporary private `26.3` configuration selected client `26.1` and did not pass unsupported `26.3` to Mineflayer.
-- Native 26.3 login/handshake test: **not run**; no authorized target server was supplied and the installed packages do not support protocol 777.
-- Packet serialization/deserialization against 26.3: **not run**; the published dependency set has no 26.3 data/protocol definitions.
+- Native data/protocol smoke test: **passed**; protocol 777 and data version 5023 resolve.
+- Native physics/chunk loader smoke test: **passed** after local 26.3 dispatch patches.
+- Native 26.3 login/handshake test: **not verified**; the authorized smoke test received `socketClosed` before spawn and did not prove a protocol failure.
+- Packet serialization/deserialization against 26.3: **not verified** against the live target.
 - Dashboard regression test: **passed after the fix** using a temporary ignored configuration; `/ping` returned `pong` and `/health` returned JSON.
 - Graceful shutdown regression test: **passed**; SIGTERM logged the shutdown path and exited cleanly.
 - Discord webhook port logic: **syntax-reviewed**; HTTP uses port 80 by default and HTTPS uses port 443 by default, with explicit URL ports honored. No live webhook request was made.
@@ -76,7 +78,7 @@ This conservative choice is intentional. The available upstream 26.3 work is not
 
 ## Remaining blockers and next step
 
-A genuine native 26.3 delivery requires a released or reproducibly vendored set of compatible upstream components: minecraft-data 26.3 data, node-minecraft-protocol 26.3 packet definitions, Mineflayer 26.3 integration, and compatible Prismarine consumers. It then requires an authorized vanilla or Paper 26.3 test server for protocol-level verification. Until those conditions are met, the project must be labeled unsupported or experimental for native 26.3, not compatible.
+A genuine stable native 26.3 delivery still requires an authorized vanilla or Paper 26.3 server to verify login, configuration, chunk/entity decoding, movement ordering, tick-end behavior, and graceful disconnect. Until those tests pass, the project must be labeled experimental native 26.3, not stable compatibility.
 
 A proxy path such as ViaVersion/ViaProxy may allow a 26.1 client to reach a 26.3 server, but that is proxy-translated compatibility and does not satisfy native 26.3 support. It must be documented and tested separately.
 

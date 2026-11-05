@@ -1,0 +1,71 @@
+{
+  "title": "tints",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "StringKeyTintEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "keys": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        },
+        "color": { "type": "integer" }
+      },
+      "required": ["keys", "color"]
+    },
+    "IntegerKeyTintEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "keys": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "integer" }
+        },
+        "color": { "type": "integer" }
+      },
+      "required": ["keys", "color"]
+    },
+    "StringKeyTintGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/definitions/StringKeyTintEntry" }
+        },
+        "default": { "type": "integer" }
+      },
+      "required": ["data"]
+    },
+    "IntegerKeyTintGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/definitions/IntegerKeyTintEntry" }
+        },
+        "default": { "type": "integer" }
+      },
+      "required": ["data"]
+    }
+  },
+  "properties": {
+    "grass": { "$ref": "#/definitions/StringKeyTintGroup" },
+    "foliage": { "$ref": "#/definitions/StringKeyTintGroup" },
+    "water": { "$ref": "#/definitions/StringKeyTintGroup" },
+    "redstone": { "$ref": "#/definitions/IntegerKeyTintGroup" },
+    "constant": { "$ref": "#/definitions/StringKeyTintGroup" }
+  },
+  "required": ["grass", "foliage", "water", "redstone", "constant"]
+}
