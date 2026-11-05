@@ -1,13 +1,13 @@
 {
   "name": "AFK Bot",
   "bot-account": {
-    "username": "YourBotUsername",
+    "username": "Virgo",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
-    "port": 25565,
+    "ip": "VirgoYT.aternos.me",
+    "port": 12652,
     "version": "",
     "try-creative": false
   },
@@ -83,7 +83,7 @@
   "chat": {
     "respond": true,
     "tpWhitelist": [
-      "YourMinecraftUsername"
+      "Virgo"
     ]
   }
 }
