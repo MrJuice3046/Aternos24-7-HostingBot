@@ -25,12 +25,13 @@ The current published dependency set is verified only for the Minecraft versions
 supported by Mineflayer 4.39.0 and minecraft-data 3.119.0. The upstream
 Mineflayer documentation currently lists support through Java Edition 26.1.
 
-**Native Minecraft Java Edition 26.3 is not verified or claimed as supported.**
-Java 26.3 uses protocol 777, while the published Prismarine packages used here
-do not contain the complete 26.3 data and protocol implementation. Upstream
-26.3 work is still on development branches and requires coordinated updates to
-Mineflayer, minecraft-protocol, and minecraft-data. Do not set `server.version`
-to `26.3` as a workaround; a version string does not add packet definitions.
+**Native Minecraft Java Edition 26.3 is not supported by the published
+Prismarine packages used here.** Java 26.3 uses protocol 777, while this
+dependency set supports a maximum client version of 26.1. The bot detects
+`server.version: "26.3"` and uses a 26.1 client for proxy translation, with a
+clear warning in the logs. This requires ViaVersion or ViaProxy on the server
+path; it does not provide native 26.3 support. A version string alone cannot
+add packet definitions.
 
 The compatibility report is in
 [`protocol-compatibility-report.md`](protocol-compatibility-report.md). It
@@ -121,8 +122,8 @@ networks.
 
 1. Install Paper or Bukkit on your server.
 2. Enable offline/cracked mode so the bot can join without a paid account.
-3. Install these plugins: ViaVersion, ViaBackwards, ViaRewind.
-   These let the bot connect even if its version does not exactly match the server.
+3. Install ViaVersion (or place ViaProxy in front of the server). The bot uses
+   a supported 26.1 client when connecting to a configured 26.3 server.
 4. In server.properties, set player-idle-timeout=0.
    This stops Minecraft from kicking the bot for being idle.
 
@@ -141,7 +142,9 @@ and fill in the required fields. The runtime intentionally reads
 
 "server": {
   "ip": "your.server.ip",
-  "port": 25565
+  "port": 25565,
+  "version": "26.3",
+  "proxy-version-fallback": "26.1"
 }
 
 "utils": {
@@ -357,7 +360,8 @@ server or bypass authentication and hosting restrictions.
 | bot-account.type | Set to "offline" for cracked servers |
 | server.ip | Your server's IP address |
 | server.port | Your server's port (default 25565) |
-| server.version | Leave blank to auto-detect |
+| server.version | Server version; `26.3` uses the supported 26.1 proxy client |
+| server.proxy-version-fallback | Supported client version used for proxy translation |
 | utils.auto-auth.enabled | Turn on if the server uses AuthMe or similar |
 | utils.chat-messages.repeat-delay | Seconds between periodic chat messages |
 | movement.circle-walk.enabled | Bot walks in a circle to appear human |

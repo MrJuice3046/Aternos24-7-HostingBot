@@ -7,6 +7,7 @@ const config = require('./settings.json');
 const express = require('express');
 const http = require('http');
 const https = require('https');
+const { resolveBotVersion } = require('./lib/version');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -353,7 +354,14 @@ function createBot() {
   console.log(`[Bot] Connecting to ${config.server.ip}:${config.server.port}`);
 
   try {
-    const botVersion = config.server.version && config.server.version.trim() !== '' ? config.server.version : false;
+    const versionResolution = resolveBotVersion(config);
+    const botVersion = versionResolution.version;
+    if (versionResolution.fallback) {
+      console.warn(
+        `[Compatibility] Native Minecraft ${versionResolution.requested} is unavailable; ` +
+        `using client ${botVersion}. The server must provide ViaVersion or ViaProxy.`
+      );
+    }
 
     const botUsername = process.env.BOT_USERNAME || config['bot-account'].username;
     const botPassword = process.env.BOT_PASSWORD || config['bot-account'].password || undefined;

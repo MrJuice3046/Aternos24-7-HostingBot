@@ -54,7 +54,9 @@ A material 26.3 behavior change is documented in Mineflayer issue #4189: [3] van
 - Added `test-results/compatibility-tests.txt` and `test-results/post-fix-tests.txt` with reproducible command output.
 - Restored graceful SIGINT/SIGTERM shutdown so the bot closes timers, listeners, sockets, and the HTTP server cleanly.
 - Corrected Discord webhook port selection for explicit HTTP/HTTPS URLs.
-- No protocol dependency was upgraded and no unsupported packet shim was added.
+- Added `lib/version.js` to validate the installed protocol/data version intersection.
+- Added a deliberate `26.3` to `26.1` client fallback for ViaVersion/ViaProxy translation, with a warning that native 26.3 is not supported.
+- Added six unit tests covering supported versions, fallback selection, and invalid configuration.
 
 This conservative choice is intentional. The available upstream 26.3 work is not a published, end-to-end release, and the environment did not provide an authorized 26.3 server for login, configuration, play, packet serialization, and regression testing.
 
@@ -62,9 +64,9 @@ This conservative choice is intentional. The available upstream 26.3 work is not
 
 - `npm ci`: **passed**; 214 packages installed.
 - `node --check index.js`: **passed**.
-- `npm test`: **passed**, but the project test is only `node --check index.js`.
+- `npm test`: **passed**; syntax check plus six version-resolution unit tests.
 - `npm ls --depth=0`: **passed**; direct dependencies match the lockfile.
-- Startup smoke test: **failed as expected** with `Error: Cannot find module './settings.json'`.
+- Startup smoke test: **passed**; a temporary private `26.3` configuration selected client `26.1` and did not pass unsupported `26.3` to Mineflayer.
 - Native 26.3 login/handshake test: **not run**; no authorized target server was supplied and the installed packages do not support protocol 777.
 - Packet serialization/deserialization against 26.3: **not run**; the published dependency set has no 26.3 data/protocol definitions.
 - Dashboard regression test: **passed after the fix** using a temporary ignored configuration; `/ping` returned `pong` and `/health` returned JSON.
