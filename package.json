@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "node scripts/run-tests.js"
+    "test": "sh scripts/run-tests.sh"
   },
   "author": "Lamgerr",
   "license": "MIT",
