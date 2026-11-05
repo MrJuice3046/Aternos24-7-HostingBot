@@ -6,10 +6,10 @@ const { resolveBotVersion, supportedVersions } = require('../lib/version');
 
 const baseConfig = version => ({ server: { version } });
 
-test('official stack supports Minecraft 26.1 but not experimental 26.3', () => {
+test('native stack includes protocol 777 for 26.3', () => {
   const versions = supportedVersions();
   assert.ok(versions.includes('26.1'));
-  assert.ok(!versions.includes('26.3'));
+  assert.ok(versions.includes('26.3'));
 });
 
 test('blank version keeps Mineflayer auto-detection', () => {
@@ -28,18 +28,18 @@ test('supported configured version is passed through unchanged', () => {
   });
 });
 
-test('26.3 falls back to the supported 26.1 client', () => {
+test('26.3 uses the native 26.3 client when protocol 777 is installed', () => {
   assert.deepEqual(resolveBotVersion(baseConfig('26.3'), {}), {
-    version: '26.1',
+    version: '26.3',
     requested: '26.3',
-    fallback: true
+    fallback: false
   });
 });
 
 test('explicit fallback configuration overrides the default mapping', () => {
-  const config = { server: { version: '99.99', 'proxy-version-fallback': '26.1' } };
+  const config = { server: { version: '99.99', 'proxy-version-fallback': '26.3' } };
   assert.deepEqual(resolveBotVersion(config, {}), {
-    version: '26.1',
+    version: '26.3',
     requested: '99.99',
     fallback: true
   });

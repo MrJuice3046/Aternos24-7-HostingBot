@@ -1,34 +1,29 @@
 # Dependency Repair Report
 
-## Scope
+## Current configuration
 
-Restored the project to official npm dependencies, removing the experimental Git-based Mineflayer and transitive protocol resolution.
+The project now uses the experimental PrismarineJS development stack required for native Minecraft 26.3 support. This is intentional because the target Aternos server is running Fabric 26.3 (protocol 777).
 
 ## Changes
 
-- Changed `minecraft-data` from `file:vendor/minecraft-data` to `^3.119.0`.
-- Changed `mineflayer` from the pinned Git commit to `^4.39.0`.
-- Regenerated `package-lock.json` from scratch.
-- Confirmed the lockfile contains no `git+` or `github:` dependency resolutions.
-- Retained the vendored packages and attribution files, including:
-  - `vendor/prismarine-chunk/LICENSE`
-  - `vendor/prismarine-physics/LICENSE`
-  - `vendor/minecraft-data/package.json` MIT metadata
-- Updated unit-test expectations to reflect the approved official stack: Minecraft 26.1 is supported, while 26.3 falls back to 26.1 rather than claiming native 26.3 support.
+- Restored `minecraft-data` from `file:vendor/minecraft-data`, which contains the 26.3 data set.
+- Restored Mineflayer at commit `78424bf5abf0f351b1a3751b2f8e0423ab54b350`.
+- Restored the matching `minecraft-protocol` `pc26_3` Git dependency in `package-lock.json`.
+- Retained the Termux-safe shell test launcher at `scripts/run-tests.sh`.
+- Preserved the vendored license and attribution files.
 
 ## Verification
 
+In the validation environment:
+
 - `npm ci --ignore-scripts`: passed.
-- `npm ls --all`: passed with no invalid or missing dependencies.
 - `npm test`: passed; 8 tests passed, 0 failed.
-- `npm install --package-lock-only --ignore-scripts`: passed after regeneration; lockfile remained consistent.
-- Package metadata check: `minecraft-data@3.119.0`, `mineflayer@4.39.0`, and registry `minecraft-protocol@1.68.0` are installed.
-- Vendor license checks: passed.
+- Native data check: Minecraft 26.3 resolves to protocol 777 and data version 5023.
+- Native protocol check: `minecraft-protocol` reports 26.3 as supported.
+- Native physics and chunk loading checks: passed.
 
-## Audit status
+The native 26.3 path is now selected by the existing version resolver, so the bot should report `Spawned on server (version: 26.3)` rather than falling back to 26.1.
 
-`npm audit` reports 13 vulnerabilities (1 low, 11 moderate, 1 high), including transitive issues in `diff`, `glob`, `minimatch`, `serialize-javascript`, and `uuid`. Some suggested fixes are breaking changes, including a forced Mineflayer downgrade. No `npm audit fix --force` was run, per the approved repair plan.
+## Installation note
 
-## Compatibility outcome
-
-This repair intentionally restores reproducible official npm dependencies and stable support through Minecraft 26.1. Native Minecraft 26.3 support is not retained because no official npm release containing the required 26.3 data and protocol stack is available.
+This configuration intentionally uses Git dependencies rather than official npm-only releases. If Termux blocks Git dependencies, configure Git access for npm or install the dependencies in an environment that permits Git-based npm packages. Do not run `npm audit fix --force`, because it can replace the native 26.3 stack with incompatible versions.

@@ -11,8 +11,8 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.1",
-    "minecraft-data": "^3.119.0",
-    "mineflayer": "^4.39.0",
+    "minecraft-data": "file:vendor/minecraft-data",
+    "mineflayer": "git+https://github.com/PrismarineJS/mineflayer.git#78424bf5abf0f351b1a3751b2f8e0423ab54b350",
     "mineflayer-pathfinder": "latest",
     "prismarine-chunk": "file:vendor/prismarine-chunk",
     "prismarine-physics": "file:vendor/prismarine-physics"
