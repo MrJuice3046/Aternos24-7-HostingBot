@@ -379,6 +379,9 @@ function createBot() {
       checkTimeoutInterval: 600000
     });
 
+    const blockAt = bot.blockAt.bind(bot);
+    bot.blockAt = position => bot.world ? blockAt(position) : null;
+
     // Some Velocity proxy builds send the proxy brand without first sending
     // select_known_packs. Native 26.3 clients must still acknowledge the
     // configuration phase before the proxy will send finish_configuration.
