@@ -387,24 +387,8 @@ function createBot() {
     }, 10);
     bot.once('spawn', () => clearInterval(blockAtGuardTimer));
 
-    // Some Velocity proxy builds send the proxy brand without first sending
-    // select_known_packs. Native 26.3 clients must still acknowledge the
-    // configuration phase before the proxy will send finish_configuration.
-    let knownPacksAcknowledged = false;
-    bot._client.on('select_known_packs', () => {
-      knownPacksAcknowledged = true;
-    });
-    bot._client.on('custom_payload', packet => {
-      if (
-        knownPacksAcknowledged ||
-        bot._client.state !== 'configuration' ||
-        packet.channel !== 'minecraft:brand'
-      ) return;
-
-      knownPacksAcknowledged = true;
-      console.log('[Compatibility] Acknowledging Velocity configuration packs');
-      bot._client.write('select_known_packs', { packs: [] });
-    });
+    // minecraft-protocol responds to select_known_packs only after the server
+    // sends that request. Do not synthesize an early reply when seeing brand.
 
     bot.loadPlugin(pathfinder);
 
@@ -495,7 +479,9 @@ function createBot() {
     });
 
     bot.on('error', (err) => {
-      console.log(`[Bot] Error: ${err.message}`);
+      const protocolState = bot?._client?.state || 'unknown';
+      const protocolVersion = bot?.version || 'unknown';
+      console.log(`[Bot] Error (version=${protocolVersion}, state=${protocolState}): ${err.message}`);
       pushError({ type: 'error', message: err.message, time: Date.now() });
 
     });
