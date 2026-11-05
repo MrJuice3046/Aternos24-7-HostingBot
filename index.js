@@ -1,5 +1,6 @@
 'use strict';
 
+require('./lib/protocol-compat');
 const mineflayer = require('mineflayer');
 const { Movements, pathfinder, goals } = require('mineflayer-pathfinder');
 const { GoalBlock } = goals;
