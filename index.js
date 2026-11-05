@@ -379,8 +379,13 @@ function createBot() {
       checkTimeoutInterval: 600000
     });
 
-    const blockAt = bot.blockAt.bind(bot);
-    bot.blockAt = position => bot.world ? blockAt(position) : null;
+    const blockAtGuardTimer = setInterval(() => {
+      if (typeof bot.blockAt !== 'function') return;
+      const blockAt = bot.blockAt.bind(bot);
+      bot.blockAt = position => bot.world ? blockAt(position) : null;
+      clearInterval(blockAtGuardTimer);
+    }, 10);
+    bot.once('spawn', () => clearInterval(blockAtGuardTimer));
 
     // Some Velocity proxy builds send the proxy brand without first sending
     // select_known_packs. Native 26.3 clients must still acknowledge the
