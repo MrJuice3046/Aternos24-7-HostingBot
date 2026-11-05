@@ -19,9 +19,32 @@ and its coordinates.
 
 ---
 
+## Compatibility status
+
+The current published dependency set is verified only for the Minecraft versions
+supported by Mineflayer 4.39.0 and minecraft-data 3.119.0. The upstream
+Mineflayer documentation currently lists support through Java Edition 26.1.
+
+**Native Minecraft Java Edition 26.3 is not verified or claimed as supported.**
+Java 26.3 uses protocol 777, while the published Prismarine packages used here
+do not contain the complete 26.3 data and protocol implementation. Upstream
+26.3 work is still on development branches and requires coordinated updates to
+Mineflayer, minecraft-protocol, and minecraft-data. Do not set `server.version`
+to `26.3` as a workaround; a version string does not add packet definitions.
+
+The compatibility report is in
+[`protocol-compatibility-report.md`](protocol-compatibility-report.md). It
+records the dependency audit, upstream evidence, baseline tests, and the exact
+requirements for a future native 26.3 verification. A ViaVersion or ViaProxy
+connection may provide proxy-translated compatibility, but that is not native
+26.3 support and must be tested separately.
+
+---
+
 ## Requirements
 
 - A GitHub account
+- Node.js 18 or newer for the published dependency set
 - A Minecraft server (see compatibility section below)
 - A hosting account for the bot (see deployment options below)
 
@@ -107,7 +130,9 @@ networks.
 
 ### Step 2 - Configure the bot
 
-Open settings.json and fill in these fields:
+Copy `settings.example.json` to `settings.json`, keep `settings.json` private,
+and fill in the required fields. The runtime intentionally reads
+`settings.json`, which is ignored by Git.
 
 ```json
 "bot-account": {
@@ -303,6 +328,24 @@ It shows whether the bot is connected, its uptime, coordinates, and server IP.
 Visit /tutorial on the same URL for a quick setup reminder.
 Visit /health for a raw JSON status response.
 Visit /ping to confirm the service is running.
+
+---
+
+## Testing
+
+Run the following commands after copying `settings.example.json` to a private
+`settings.json` and filling in an authorized test server:
+
+```bash
+npm ci
+npm test
+npm ls --depth=0
+```
+
+`npm test` currently performs a JavaScript syntax check. Protocol-level login,
+handshake, packet, and dashboard regression tests require a private test
+environment and are not implied by a passing syntax check. Do not use a public
+server or bypass authentication and hosting restrictions.
 
 ---
 

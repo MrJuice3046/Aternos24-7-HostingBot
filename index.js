@@ -872,8 +872,9 @@ function sendDiscordWebhook(content, color = 0x0099ff) {
   }
   lastDiscordSend = now;
 
-  const protocol = config.discord.webhookUrl.startsWith('https') ? https : http;
   const urlParts = new URL(config.discord.webhookUrl);
+  const isHttps = urlParts.protocol === 'https:';
+  const protocol = isHttps ? https : http;
 
   const payload = JSON.stringify({
     username: config.name,
@@ -887,7 +888,7 @@ function sendDiscordWebhook(content, color = 0x0099ff) {
 
   const options = {
     hostname: urlParts.hostname,
-    port: 443,
+    port: urlParts.port || (isHttps ? 443 : 80),
     path: urlParts.pathname + urlParts.search,
     method: 'POST',
     headers: {
@@ -935,8 +936,29 @@ process.on('unhandledRejection', (reason) => {
   pushError({ type: 'rejection', message: String(reason), time: Date.now() });
 });
 
-process.on('SIGINT', () => process.exit(0));
-process.on('SIGTERM', () => process.exit(0))
+let isShuttingDown = false;
+
+function shutdown(signal) {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+  console.log(`[System] ${signal} received - shutting down gracefully.`);
+  clearBotTimeouts();
+  clearAllIntervals();
+  if (bot) {
+    try {
+      bot.removeAllListeners();
+      bot.end();
+    } catch (err) {
+      console.log(`[System] Bot shutdown warning: ${err.message}`);
+    }
+    bot = null;
+  }
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(0), 5000).unref();
+}
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 console.log('='.repeat(50));
 console.log('  Minecraft AFK Bot - Fixed Edition');
