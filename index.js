@@ -935,8 +935,8 @@ process.on('unhandledRejection', (reason) => {
   pushError({ type: 'rejection', message: String(reason), time: Date.now() });
 });
 
-process.on('SIGTERM', () => console.log('[System] SIGTERM received - staying alive.'));
-process.on('SIGINT',  () => console.log('[System] SIGINT received - staying alive.'));
+process.on('SIGINT', () => process.exit(0));
+process.on('SIGTERM', () => process.exit(0))
 
 console.log('='.repeat(50));
 console.log('  Minecraft AFK Bot - Fixed Edition');
