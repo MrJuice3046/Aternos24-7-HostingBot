@@ -5,15 +5,17 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "node --check index.js"
+    "test": "sh scripts/run-tests.sh"
   },
   "author": "Lamgerr",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.1",
-    "minecraft-data": "latest",
-    "mineflayer": "latest",
-    "mineflayer-pathfinder": "latest"
+    "minecraft-data": "file:vendor/minecraft-data",
+    "mineflayer": "git+https://github.com/PrismarineJS/mineflayer.git#78424bf5abf0f351b1a3751b2f8e0423ab54b350",
+    "mineflayer-pathfinder": "latest",
+    "prismarine-chunk": "file:vendor/prismarine-chunk",
+    "prismarine-physics": "file:vendor/prismarine-physics"
   },
   "devDependencies": {
     "eslint": "^10.8.1"

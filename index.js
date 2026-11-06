@@ -1,5 +1,6 @@
 'use strict';
 
+require('./lib/protocol-compat');
 const mineflayer = require('mineflayer');
 const { Movements, pathfinder, goals } = require('mineflayer-pathfinder');
 const { GoalBlock } = goals;
@@ -7,6 +8,7 @@ const config = require('./settings.json');
 const express = require('express');
 const http = require('http');
 const https = require('https');
+const { resolveBotVersion } = require('./lib/version');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -353,7 +355,14 @@ function createBot() {
   console.log(`[Bot] Connecting to ${config.server.ip}:${config.server.port}`);
 
   try {
-    const botVersion = config.server.version && config.server.version.trim() !== '' ? config.server.version : false;
+    const versionResolution = resolveBotVersion(config);
+    const botVersion = versionResolution.version;
+    if (versionResolution.fallback) {
+      console.warn(
+        `[Compatibility] Native Minecraft ${versionResolution.requested} is unavailable; ` +
+        `using client ${botVersion}. The server must provide ViaVersion or ViaProxy.`
+      );
+    }
 
     const botUsername = process.env.BOT_USERNAME || config['bot-account'].username;
     const botPassword = process.env.BOT_PASSWORD || config['bot-account'].password || undefined;
@@ -369,6 +378,17 @@ function createBot() {
       hideErrors: false,
       checkTimeoutInterval: 600000
     });
+
+    const blockAtGuardTimer = setInterval(() => {
+      if (typeof bot.blockAt !== 'function') return;
+      const blockAt = bot.blockAt.bind(bot);
+      bot.blockAt = position => bot.world ? blockAt(position) : null;
+      clearInterval(blockAtGuardTimer);
+    }, 10);
+    bot.once('spawn', () => clearInterval(blockAtGuardTimer));
+
+    // minecraft-protocol responds to select_known_packs only after the server
+    // sends that request. Do not synthesize an early reply when seeing brand.
 
     bot.loadPlugin(pathfinder);
 
@@ -459,7 +479,9 @@ function createBot() {
     });
 
     bot.on('error', (err) => {
-      console.log(`[Bot] Error: ${err.message}`);
+      const protocolState = bot?._client?.state || 'unknown';
+      const protocolVersion = bot?.version || 'unknown';
+      console.log(`[Bot] Error (version=${protocolVersion}, state=${protocolState}): ${err.message}`);
       pushError({ type: 'error', message: err.message, time: Date.now() });
 
     });
@@ -872,8 +894,9 @@ function sendDiscordWebhook(content, color = 0x0099ff) {
   }
   lastDiscordSend = now;
 
-  const protocol = config.discord.webhookUrl.startsWith('https') ? https : http;
   const urlParts = new URL(config.discord.webhookUrl);
+  const isHttps = urlParts.protocol === 'https:';
+  const protocol = isHttps ? https : http;
 
   const payload = JSON.stringify({
     username: config.name,
@@ -887,7 +910,7 @@ function sendDiscordWebhook(content, color = 0x0099ff) {
 
   const options = {
     hostname: urlParts.hostname,
-    port: 443,
+    port: urlParts.port || (isHttps ? 443 : 80),
     path: urlParts.pathname + urlParts.search,
     method: 'POST',
     headers: {
@@ -935,8 +958,29 @@ process.on('unhandledRejection', (reason) => {
   pushError({ type: 'rejection', message: String(reason), time: Date.now() });
 });
 
-process.on('SIGTERM', () => console.log('[System] SIGTERM received - staying alive.'));
-process.on('SIGINT',  () => console.log('[System] SIGINT received - staying alive.'));
+let isShuttingDown = false;
+
+function shutdown(signal) {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+  console.log(`[System] ${signal} received - shutting down gracefully.`);
+  clearBotTimeouts();
+  clearAllIntervals();
+  if (bot) {
+    try {
+      bot.removeAllListeners();
+      bot.end();
+    } catch (err) {
+      console.log(`[System] Bot shutdown warning: ${err.message}`);
+    }
+    bot = null;
+  }
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(0), 5000).unref();
+}
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 console.log('='.repeat(50));
 console.log('  Minecraft AFK Bot - Fixed Edition');

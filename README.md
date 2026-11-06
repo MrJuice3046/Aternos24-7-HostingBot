@@ -19,9 +19,32 @@ and its coordinates.
 
 ---
 
+## Compatibility status
+
+The project now uses an experimental native 26.3 stack: the upstream Mineflayer
+26.3 commit, the upstream protocol-777 branch, vendored official 26.3 data,
+and local compatibility patches for Prismarine physics and chunk dispatch.
+
+**Native Minecraft Java Edition 26.3 is implemented experimentally, not claimed
+as stable.** The vendored data resolves protocol 777 and data version 5023.
+The project also loads the required physics and chunk implementations for
+26.3. A real login, configuration, chunk, movement, and long-running session
+against an authorized 26.3 server is still required before calling the stack
+fully verified.
+
+The compatibility report is in
+[`protocol-compatibility-report.md`](protocol-compatibility-report.md). It
+records the dependency audit, upstream evidence, baseline tests, and the exact
+requirements for a future native 26.3 verification. A ViaVersion or ViaProxy
+connection may provide proxy-translated compatibility, but that is not native
+26.3 support and must be tested separately.
+
+---
+
 ## Requirements
 
 - A GitHub account
+- Node.js 18 or newer for the published dependency set
 - A Minecraft server (see compatibility section below)
 - A hosting account for the bot (see deployment options below)
 
@@ -98,8 +121,8 @@ networks.
 
 1. Install Paper or Bukkit on your server.
 2. Enable offline/cracked mode so the bot can join without a paid account.
-3. Install these plugins: ViaVersion, ViaBackwards, ViaRewind.
-   These let the bot connect even if its version does not exactly match the server.
+3. For native 26.3 testing, do not use ViaVersion or ViaProxy between the bot
+   and the authorized 26.3 server. The bot now negotiates protocol 777 directly.
 4. In server.properties, set player-idle-timeout=0.
    This stops Minecraft from kicking the bot for being idle.
 
@@ -107,7 +130,9 @@ networks.
 
 ### Step 2 - Configure the bot
 
-Open settings.json and fill in these fields:
+Copy `settings.example.json` to `settings.json`, keep `settings.json` private,
+and fill in the required fields. The runtime intentionally reads
+`settings.json`, which is ignored by Git.
 
 ```json
 "bot-account": {
@@ -116,7 +141,9 @@ Open settings.json and fill in these fields:
 
 "server": {
   "ip": "your.server.ip",
-  "port": 25565
+  "port": 25565,
+  "version": "26.3",
+  "proxy-version-fallback": "26.1"
 }
 
 "utils": {
@@ -306,6 +333,24 @@ Visit /ping to confirm the service is running.
 
 ---
 
+## Testing
+
+Run the following commands after copying `settings.example.json` to a private
+`settings.json` and filling in an authorized test server:
+
+```bash
+npm ci
+npm test
+npm ls --depth=0
+```
+
+`npm test` currently performs a JavaScript syntax check. Protocol-level login,
+handshake, packet, and dashboard regression tests require a private test
+environment and are not implied by a passing syntax check. Do not use a public
+server or bypass authentication and hosting restrictions.
+
+---
+
 ## settings.json Reference
 
 | Key | What it does |
@@ -314,7 +359,8 @@ Visit /ping to confirm the service is running.
 | bot-account.type | Set to "offline" for cracked servers |
 | server.ip | Your server's IP address |
 | server.port | Your server's port (default 25565) |
-| server.version | Leave blank to auto-detect |
+| server.version | Native server version; use `26.3` for protocol 777 |
+| server.proxy-version-fallback | Optional fallback for an unsupported target version |
 | utils.auto-auth.enabled | Turn on if the server uses AuthMe or similar |
 | utils.chat-messages.repeat-delay | Seconds between periodic chat messages |
 | movement.circle-walk.enabled | Bot walks in a circle to appear human |

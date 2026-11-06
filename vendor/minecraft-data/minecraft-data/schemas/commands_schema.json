@@ -1,0 +1,140 @@
+{
+    "$id": "https://example.com/person.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+  
+    "definitions": {
+
+        "RootNode" : {
+            "type" : "object",
+            "properties": {
+                "type" : {"enum": ["root"]},
+                "name" : {"type" : "string"},
+                "executable" : {"type" : "boolean"},
+                "redirects" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string"
+                    }
+                },
+                "children" : {
+                    "type" : "array",
+                    "items" : {
+                        "oneOf" : [
+                            {"$ref": "#/definitions/LiteralNode"},
+                            {"$ref": "#/definitions/ArgumentNode"}
+                        ]
+                    }
+                }
+            },
+            "required": ["type","name", "executable","redirects","children"],
+            "additionalProperties": false
+        },
+
+        "LiteralNode" : {
+            "type" : "object",
+            "properties": {
+                "type" : {"enum": ["literal"]},
+                "name" : {"type" : "string"},
+                "executable" : {"type" : "boolean"},
+                "redirects" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string"
+                    }
+                },
+                "children" : {
+                    "type" : "array",
+                    "items" : {
+                        "oneOf" : [
+                            {"$ref": "#/definitions/LiteralNode"},
+                            {"$ref": "#/definitions/ArgumentNode"}
+                        ]
+                    }
+                }
+            },
+            "required": ["type","name", "executable","redirects","children"],
+            "additionalProperties": false
+        },
+
+        "ArgumentNode" : {
+            "type" : "object",
+            "properties": {
+                "type" : {"enum": ["argument"]},
+                "name" : {"type" : "string"},
+                "executable" : {"type" : "boolean"},
+                "redirects" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string"
+                    }
+                },
+                "children" : {
+                    "type" : "array",
+                    "items" : {
+                        "oneOf" : [
+                            {"$ref": "#/definitions/LiteralNode"},
+                            {"$ref": "#/definitions/ArgumentNode"}
+                        ]
+                    }
+                }, 
+
+                "parser" : {
+                    "type" : "object",
+                    "properties" : { 
+                        "parser" : {
+                            "type" : "string"
+                        }, 
+                        "modifier" : {
+                            "type" : ["object","null"]
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "required": ["type","name", "executable","redirects","children"],
+            "additionalProperties": false
+        },
+
+        "ParserInfo" : {
+            "type" : "object",
+            "properties": {
+
+                "parser" : {
+                    "type" : "string"
+                },
+                "modifier" : {
+                    "type" : ["object", "null"]
+                },
+                "examples" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string"
+                    }
+                }
+            },
+
+            "required": ["parser","modifier","examples"],
+            "additionalProperties": false
+        }
+
+
+    },
+
+
+    "type" : "object",
+    "properties": {
+        "root" : {
+            "$ref": "#/definitions/RootNode" 
+        },
+        "parsers" : {
+            "type" : "array",
+            "items" : {
+                "$ref": "#/definitions/ParserInfo" 
+            }
+        }
+    },
+    "required": ["root","parsers"],
+    "additionalProperties": false
+
+
+}

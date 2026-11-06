@@ -1,0 +1,97 @@
+# Post-fix project test log
+2026-11-05T21:03:57+00:00
+node: v22.23.4
+npm: 10.9.9
+
+## syntax and JSON
+node-check=0
+example-json=0
+
+> minecraft-afk-bot@2.2 test
+> node --check index.js
+
+npm-test=0
+
+## dependency consistency
+npm warn deprecated uuid@8.3.2: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+npm warn deprecated uuid@10.0.0: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+
+added 214 packages, and audited 215 packages in 5s
+
+29 packages are looking for funding
+  run `npm fund` for details
+
+18 vulnerabilities (3 low, 10 moderate, 4 high, 1 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+npm-ci=0
+minecraft-afk-bot@2.2 /home/ubuntu/work/Aternos24-7-HostingBot
+├── eslint@10.8.1
+├── express@4.18.1
+├── minecraft-data@3.119.0
+├── mineflayer-pathfinder@2.4.5
+└── mineflayer@4.39.0
+
+npm-ls=0
+
+## dashboard smoke test
+[1] 3520
+dashboard-ready=1
+pong ping-exit=0
+{"status":"disconnected","uptime":0,"coords":null,"lastActivity":1793912644017,"reconnectAttempts":1,"memoryUsage":35.031494140625} health-exit=0
+
+## graceful shutdown
+[1]+  Done                    PORT=5127 node index.js > /tmp/aternos-postfix-runtime.log 2>&1
+shutdown-exit=0
+[KeepAlive] No host URL env var set - self-ping disabled (running locally)
+==================================================
+  Minecraft AFK Bot - Fixed Edition
+==================================================
+Server:         127.0.0.1:1
+Bot Username:   YourBotUsername
+Auto-Reconnect: Disabled
+==================================================
+[Bot] Connecting to 127.0.0.1:1
+[Server] HTTP server started on port 5127
+Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1
+}
+[Bot] Error: connect ECONNREFUSED 127.0.0.1:1
+[Bot] Disconnected: socketClosed
+[Cleanup] Clearing 0 intervals
+[Bot] Reconnecting in 4.557s (attempt #1)
+Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1
+}
+[Bot] Error: connect ECONNREFUSED 127.0.0.1:1
+[System] SIGTERM received - shutting down gracefully.
+[Cleanup] Clearing 0 intervals
+
+## staged-secret filename scan
+README.md
+index.js
+no private config files tracked
+
+## final status
+## [32mmain[m...[31morigin/main[m
+ [31mM[m README.md
+ [31mM[m index.js
+[31m??[m protocol-compatibility-report.md
+[31m??[m settings.example.json
+[31m??[m test-results/
