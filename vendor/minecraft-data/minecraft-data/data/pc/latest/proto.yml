@@ -1682,6 +1682,9 @@
    # MC: ClientboundClearDialogPacket
    packet_common_clear_dialog:
       # empty
+   # MC: ClientboundPostEffectsPacket
+   packet_common_post_effects:
+      postEffects: string[]varint
    # MC: ServerboundCustomClickActionPacket
    packet_common_custom_click_action:
       id: string
@@ -1882,6 +1885,7 @@
          - registry_data
          - remove_resource_pack
          - add_resource_pack
+         - post_effects
          - store_cookie
          - transfer
          - feature_flags
@@ -1903,6 +1907,7 @@
          if registry_data: packet_registry_data
          if remove_resource_pack: packet_common_remove_resource_pack
          if add_resource_pack: packet_common_add_resource_pack
+         if post_effects: packet_common_post_effects
          if store_cookie: packet_common_store_cookie
          if transfer: packet_common_transfer
          if feature_flags: packet_feature_flags
@@ -2278,6 +2283,10 @@
       explosionParticle: Particle
       sound: ItemSoundHolder
       blockParticles: ExplosionParticleEntry[]varint
+   # MC: ClientboundAddTransientBlockPacket
+   packet_add_transient_block:
+      pos: position
+      blockState: varint
    # MC: ClientboundForgetLevelChunkPacket
    packet_unload_chunk:
       chunkZ: i32
@@ -2937,6 +2946,12 @@
          if 3: string
          default: void
    ## (Store Cookie is Common)
+   # MC: ClientboundSwingAnimationPacket
+   packet_swing_animation:
+      entityId: varint
+      hand: varint
+      animation: varint
+      duration: varint
    # MC: ClientboundSystemChatPacket
    packet_system_chat:
       content: anonymousNbt
@@ -3160,6 +3175,7 @@
       - entity_status
       - sync_entity_position
       - explosion
+      - add_transient_block
       - unload_chunk
       - game_state_change
       - game_rule_values
@@ -3205,6 +3221,7 @@
       - reset_score
       - remove_resource_pack
       - add_resource_pack
+      - post_effects
       - respawn
       - entity_head_rotation
       - multi_block_change
@@ -3244,6 +3261,7 @@
       - start_configuration
       - stop_sound
       - store_cookie
+      - swing_animation
       - system_chat
       - playerlist_header
       - nbt_query_response
@@ -3302,6 +3320,7 @@
          if entity_status: packet_entity_status
          if sync_entity_position: packet_sync_entity_position
          if explosion: packet_explosion
+         if add_transient_block: packet_add_transient_block
          if unload_chunk: packet_unload_chunk
          if game_state_change: packet_game_state_change
          if game_rule_values: packet_game_rule_values
@@ -3348,6 +3367,7 @@
          if remove_resource_pack: packet_common_remove_resource_pack
          if add_resource_pack: packet_common_add_resource_pack
          if respawn: packet_respawn
+         if post_effects: packet_common_post_effects
          if entity_head_rotation: packet_entity_head_rotation
          if multi_block_change: packet_multi_block_change
          if select_advancement_tab: packet_select_advancement_tab
@@ -3386,6 +3406,7 @@
          if start_configuration: packet_start_configuration
          if stop_sound: packet_stop_sound
          if store_cookie: packet_common_store_cookie
+         if swing_animation: packet_swing_animation
          if system_chat: packet_system_chat
          if playerlist_header: packet_playerlist_header
          if nbt_query_response: packet_nbt_query_response
