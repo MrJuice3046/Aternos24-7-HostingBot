@@ -1,12 +1,12 @@
 {
-  "name": "AFK Bot",
+  "name": "Zarko",
   "bot-account": {
     "username": "YourBotUsername",
     "password": "",
     "type": "offline"
   },
   "server": {
-    "ip": "your.server.ip",
+    "ip": "royalkingsmp.fgh.wtf",
     "port": 25565,
     "version": "",
     "try-creative": false
@@ -82,6 +82,6 @@
   },
   "chat": {
     "respond": true,
-    "tpWhitelist": ["YourMinecraftUsername"]
+    "tpWhitelist": ["7s_Style"]
   }
 }
