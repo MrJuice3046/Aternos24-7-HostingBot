@@ -71,3 +71,50 @@ test('native 26.3 physics and chunk implementations load', () => {
   assert.doesNotThrow(() => physics.Physics(data, { getBlock: () => null }));
   assert.doesNotThrow(() => chunk('26.3'));
 });
+
+test('26.3 decodes the verified item component IDs and payload codecs', () => {
+  const deserializer = createDeserializer({ state: 'play', isServer: false, version: '26.3' });
+  const decode = bytes => deserializer.proto.parsePacketBuffer('SlotComponent', Buffer.from(bytes)).data;
+
+  assert.deepEqual(decode([40, 1, 6]), {
+    type: 'attack_animation',
+    data: { type: 'whack', duration: 6 }
+  });
+  assert.deepEqual(decode([41, 2, 9]), {
+    type: 'interact_animation',
+    data: { type: 'stab', duration: 9 }
+  });
+  assert.deepEqual(decode([43, 7]), { type: 'block_transformer', data: 7 });
+  assert.deepEqual(decode([44, 12]), { type: 'villager_food', data: { nutrition: 12 } });
+  assert.deepEqual(decode([80, 1, 1, 0, 0]), {
+    type: 'sulfur_cube_content',
+    data: { itemId: 1, itemCount: 1, addedComponentCount: 0, removedComponentCount: 0, components: [], removeComponents: [] }
+  });
+  assert.deepEqual(decode([84, 1, 0, 0, 0, 4]), {
+    type: 'compostable',
+    data: { layers: { isConstant: true, value: 4 } }
+  });
+  assert.deepEqual(decode([85, 1, 0, 0, 0, 200, 1, 0x3f, 0x80, 0, 0]), {
+    type: 'cooking_fuel',
+    data: {
+      burn_time: { isConstant: true, value: 200 },
+      speed_multiplier: { isConstant: true, value: 1 }
+    }
+  });
+  assert.deepEqual(decode([86, 1, 0, 0, 0, 5, 1, 0x3f, 0x80, 0, 0]), {
+    type: 'brewing_fuel',
+    data: {
+      uses: { isConstant: true, value: 5 },
+      speed_multiplier: { isConstant: true, value: 1 }
+    }
+  });
+
+  const mobVisibility = decode([
+    87, 0, 17, ...Buffer.from('minecraft:hostile'), 0x40, 0, 0, 0
+  ]);
+  assert.deepEqual(mobVisibility, {
+    type: 'mob_visibility',
+    data: { targetingEntityTypes: { name: 'minecraft:hostile' }, visibility: 2 }
+  });
+  assert.deepEqual(decode([117, 9]), { type: 'provides_pottery_pattern', data: 9 });
+});

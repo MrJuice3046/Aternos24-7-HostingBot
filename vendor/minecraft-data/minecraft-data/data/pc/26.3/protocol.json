@@ -205,76 +205,84 @@
           "37": "blocks_attacks",
           "38": "piercing_weapon",
           "39": "kinetic_weapon",
-          "40": "swing_animation",
-          "41": "additional_trade_cost",
-          "42": "stored_enchantments",
-          "43": "dye",
-          "44": "dyed_color",
-          "45": "map_color",
-          "46": "map_id",
-          "47": "map_decorations",
-          "48": "map_post_processing",
-          "49": "charged_projectiles",
-          "50": "bundle_contents",
-          "51": "potion_contents",
-          "52": "potion_duration_scale",
-          "53": "suspicious_stew_effects",
-          "54": "writable_book_content",
-          "55": "written_book_content",
-          "56": "trim",
-          "57": "debug_stick_state",
-          "58": "entity_data",
-          "59": "bucket_entity_data",
-          "60": "block_entity_data",
-          "61": "instrument",
-          "62": "provides_trim_material",
-          "63": "ominous_bottle_amplifier",
-          "64": "jukebox_playable",
-          "65": "provides_banner_patterns",
-          "66": "recipes",
-          "67": "lodestone_tracker",
-          "68": "firework_explosion",
-          "69": "fireworks",
-          "70": "profile",
-          "71": "note_block_sound",
-          "72": "banner_patterns",
-          "73": "base_color",
-          "74": "pot_decorations",
-          "75": "container",
-          "76": "block_state",
-          "77": "bees",
-          "78": "lock",
-          "79": "container_loot",
-          "80": "break_sound",
-          "81": "villager/variant",
-          "82": "wolf/variant",
-          "83": "wolf/sound_variant",
-          "84": "wolf/collar",
-          "85": "fox/variant",
-          "86": "salmon/size",
-          "87": "parrot/variant",
-          "88": "tropical_fish/pattern",
-          "89": "tropical_fish/base_color",
-          "90": "tropical_fish/pattern_color",
-          "91": "mooshroom/variant",
-          "92": "rabbit/variant",
-          "93": "pig/variant",
-          "94": "pig/sound_variant",
-          "95": "cow/variant",
-          "96": "cow/sound_variant",
-          "97": "chicken/variant",
-          "98": "chicken/sound_variant",
-          "99": "zombie_nautilus/variant",
-          "100": "frog/variant",
-          "101": "horse/variant",
-          "102": "painting/variant",
-          "103": "llama/variant",
-          "104": "axolotl/variant",
-          "105": "cat/variant",
-          "106": "cat/sound_variant",
-          "107": "cat/collar",
-          "108": "sheep/color",
-          "109": "shulker/color"
+          "40": "attack_animation",
+          "41": "interact_animation",
+          "42": "additional_trade_cost",
+          "43": "block_transformer",
+          "44": "villager_food",
+          "45": "stored_enchantments",
+          "46": "dye",
+          "47": "dyed_color",
+          "48": "map_id",
+          "49": "map_decorations",
+          "50": "map_post_processing",
+          "51": "charged_projectiles",
+          "52": "bundle_contents",
+          "53": "potion_contents",
+          "54": "potion_duration_scale",
+          "55": "suspicious_stew_effects",
+          "56": "writable_book_content",
+          "57": "written_book_content",
+          "58": "trim",
+          "59": "debug_stick_state",
+          "60": "entity_data",
+          "61": "bucket_entity_data",
+          "62": "block_entity_data",
+          "63": "instrument",
+          "64": "provides_trim_material",
+          "65": "ominous_bottle_amplifier",
+          "66": "jukebox_playable",
+          "67": "provides_banner_patterns",
+          "68": "recipes",
+          "69": "lodestone_tracker",
+          "70": "firework_explosion",
+          "71": "fireworks",
+          "72": "profile",
+          "73": "note_block_sound",
+          "74": "banner_patterns",
+          "75": "base_color",
+          "76": "pot_decorations",
+          "77": "container",
+          "78": "block_state",
+          "79": "bees",
+          "80": "sulfur_cube_content",
+          "81": "lock",
+          "82": "container_loot",
+          "83": "break_sound",
+          "84": "compostable",
+          "85": "cooking_fuel",
+          "86": "brewing_fuel",
+          "87": "mob_visibility",
+          "88": "villager/variant",
+          "89": "wolf/variant",
+          "90": "wolf/sound_variant",
+          "91": "wolf/collar",
+          "92": "fox/variant",
+          "93": "salmon/size",
+          "94": "parrot/variant",
+          "95": "tropical_fish/pattern",
+          "96": "tropical_fish/base_color",
+          "97": "tropical_fish/pattern_color",
+          "98": "mooshroom/variant",
+          "99": "rabbit/variant",
+          "100": "pig/variant",
+          "101": "pig/sound_variant",
+          "102": "cow/variant",
+          "103": "cow/sound_variant",
+          "104": "chicken/variant",
+          "105": "chicken/sound_variant",
+          "106": "zombie_nautilus/variant",
+          "107": "frog/variant",
+          "108": "horse/variant",
+          "109": "painting/variant",
+          "110": "llama/variant",
+          "111": "axolotl/variant",
+          "112": "cat/variant",
+          "113": "cat/sound_variant",
+          "114": "cat/collar",
+          "115": "sheep/color",
+          "116": "shulker/color",
+          "117": "provides_pottery_pattern"
         }
       }
     ],
@@ -1058,33 +1066,9 @@
                     }
                   ]
                 ],
-                "swing_animation": [
-                  "container",
-                  [
-                    {
-                      "name": "type",
-                      "type": [
-                        "mapper",
-                        {
-                          "type": "varint",
-                          "mappings": {
-                            "0": "none",
-                            "1": "whack",
-                            "2": "stab"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "name": "duration",
-                      "type": "varint"
-                    }
-                  ]
-                ],
                 "additional_trade_cost": "varint",
                 "dye": "DyeColor",
                 "dyed_color": "i32",
-                "map_color": "i32",
                 "map_id": "varint",
                 "map_decorations": "anonymousNbt",
                 "map_post_processing": "varint",
@@ -1602,7 +1586,113 @@
                 "cat/sound_variant": "varint",
                 "cat/collar": "DyeColor",
                 "sheep/color": "DyeColor",
-                "shulker/color": "DyeColor"
+                "shulker/color": "DyeColor",
+                "attack_animation": [
+                  "container",
+                  [
+                    {
+                      "name": "type",
+                      "type": [
+                        "mapper",
+                        {
+                          "type": "varint",
+                          "mappings": {
+                            "0": "none",
+                            "1": "whack",
+                            "2": "stab"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "name": "duration",
+                      "type": "varint"
+                    }
+                  ]
+                ],
+                "interact_animation": [
+                  "container",
+                  [
+                    {
+                      "name": "type",
+                      "type": [
+                        "mapper",
+                        {
+                          "type": "varint",
+                          "mappings": {
+                            "0": "none",
+                            "1": "whack",
+                            "2": "stab"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "name": "duration",
+                      "type": "varint"
+                    }
+                  ]
+                ],
+                "block_transformer": "varint",
+                "villager_food": [
+                  "container",
+                  [
+                    {
+                      "name": "nutrition",
+                      "type": "varint"
+                    }
+                  ]
+                ],
+                "sulfur_cube_content": "ItemStackTemplate",
+                "compostable": [
+                  "container",
+                  [
+                    {
+                      "name": "layers",
+                      "type": "ResolvableInt"
+                    }
+                  ]
+                ],
+                "cooking_fuel": [
+                  "container",
+                  [
+                    {
+                      "name": "burn_time",
+                      "type": "ResolvableInt"
+                    },
+                    {
+                      "name": "speed_multiplier",
+                      "type": "ResolvableFloat"
+                    }
+                  ]
+                ],
+                "brewing_fuel": [
+                  "container",
+                  [
+                    {
+                      "name": "uses",
+                      "type": "ResolvableInt"
+                    },
+                    {
+                      "name": "speed_multiplier",
+                      "type": "ResolvableFloat"
+                    }
+                  ]
+                ],
+                "mob_visibility": [
+                  "container",
+                  [
+                    {
+                      "name": "targetingEntityTypes",
+                      "type": "IDSet"
+                    },
+                    {
+                      "name": "visibility",
+                      "type": "f32"
+                    }
+                  ]
+                ],
+                "provides_pottery_pattern": "varint"
               }
             }
           ]
@@ -5045,6 +5135,50 @@
             {
               "countType": "varint",
               "type": "string"
+            }
+          ]
+        }
+      ]
+    ],
+    "ResolvableInt": [
+      "container",
+      [
+        {
+          "name": "isConstant",
+          "type": "bool"
+        },
+        {
+          "name": "value",
+          "type": [
+            "switch",
+            {
+              "compareTo": "isConstant",
+              "fields": {
+                "true": "i32",
+                "false": "string"
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "ResolvableFloat": [
+      "container",
+      [
+        {
+          "name": "isConstant",
+          "type": "bool"
+        },
+        {
+          "name": "value",
+          "type": [
+            "switch",
+            {
+              "compareTo": "isConstant",
+              "fields": {
+                "true": "f32",
+                "false": "string"
+              }
             }
           ]
         }
