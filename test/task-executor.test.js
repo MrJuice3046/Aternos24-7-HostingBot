@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createTaskExecutor } = require('../lib/task-executor');
 
-function makeComeBot({ failSafeRoute = false } = {}) {
+function makeComeBot({ failTimes = 0 } = {}) {
   let calls = 0;
   const movementProfiles = [];
   const defaultMovements = { canDig: false, allow1by1towers: false };
@@ -18,7 +18,7 @@ function makeComeBot({ failSafeRoute = false } = {}) {
       setGoal() {},
       goto: async () => {
         calls++;
-        if (failSafeRoute && calls === 1) throw Object.assign(new Error('No path'), { name: 'NoPath' });
+        if (calls <= failTimes) throw Object.assign(new Error('No path'), { name: 'NoPath' });
       }
     },
     clearControlStates() {}
@@ -48,8 +48,8 @@ test('survival controller equips and eats suitable food when hunger is below thr
   assert.equal(consumed, true);
 });
 
-test('come uses a safe alternate path first and never edits terrain unless enabled', async () => {
-  const { bot, calls, movementProfiles, defaultMovements } = makeComeBot({ failSafeRoute: true });
+test('a blocked safe route recovers on one retry without any terrain edits', async () => {
+  const { bot, calls, movementProfiles, defaultMovements } = makeComeBot({ failTimes: 1 });
   let constructedFallback = false;
   const executor = createTaskExecutor({
     bot,
@@ -58,14 +58,27 @@ test('come uses a safe alternate path first and never edits terrain unless enabl
     Movements: class { constructor() { constructedFallback = true; } }
   });
   const result = await executor.start({ type: 'come' }, 'Owner');
-  assert.equal(result, false);
-  assert.equal(calls(), 1);
+  assert.equal(result, true);
+  assert.equal(calls(), 2);
   assert.equal(constructedFallback, false);
   assert.ok(movementProfiles.every(movement => movement === defaultMovements));
 });
 
-test('configured terrain fallback is attempted only after the safe route fails', async () => {
-  const { bot, calls, movementProfiles, defaultMovements } = makeComeBot({ failSafeRoute: true });
+test('without terrain fallback, persistent route failure ends the task safely', async () => {
+  const { bot, calls, movementProfiles, defaultMovements } = makeComeBot({ failTimes: 2 });
+  const executor = createTaskExecutor({
+    bot,
+    config: { 'player-skills': { tasks: { allowDigFallback: false, allowScaffoldFallback: false } } },
+    defaultMovements
+  });
+  const result = await executor.start({ type: 'come' }, 'Owner');
+  assert.equal(result, false);
+  assert.equal(calls(), 2, 'one safe attempt plus one retry, nothing more');
+  assert.ok(movementProfiles.every(movement => movement === defaultMovements));
+});
+
+test('configured terrain fallback is attempted only after safe retries fail', async () => {
+  const { bot, calls, movementProfiles, defaultMovements } = makeComeBot({ failTimes: 2 });
   const executor = createTaskExecutor({
     bot,
     config: { 'player-skills': { tasks: { allowDigFallback: true, allowScaffoldFallback: true } } },
@@ -74,9 +87,44 @@ test('configured terrain fallback is attempted only after the safe route fails',
   });
   const result = await executor.start({ type: 'come' }, 'Owner');
   assert.equal(result, true);
-  assert.equal(calls(), 2);
+  assert.equal(calls(), 3, 'safe attempt, safe retry, then fallback');
   assert.equal(movementProfiles[0], defaultMovements);
+  assert.equal(movementProfiles[1], defaultMovements);
   const fallback = movementProfiles.find(movement => movement !== defaultMovements);
   assert.equal(fallback.canDig, true);
   assert.equal(fallback.allow1by1towers, true);
+});
+
+test('mining without a required pickaxe attempts to craft one from wood first', async () => {
+  const crafted = [];
+  const bot = {
+    entity: { position: { x: 0, y: 64, z: 0 } },
+    username: 'Bot',
+    players: { Owner: { entity: { position: { x: 10, y: 64, z: 0 } } } },
+    registry: {
+      itemsByName: {
+        oak_planks: { id: 1 },
+        stick: { id: 2 },
+        crafting_table: { id: 3 },
+        wooden_pickaxe: { id: 4 },
+        stone_pickaxe: { id: 5 }
+      }
+    },
+    inventory: { items: () => [{ name: 'oak_log', type: 9, metadata: 0, count: 3 }] },
+    recipesFor: id => [{ id }],
+    craft: async recipe => crafted.push(recipe.id),
+    findBlock: () => ({ position: { x: 1, y: 64, z: 1 }, name: 'stone', diggable: true }),
+    blockAt: () => ({ name: 'stone', diggable: true }),
+    pathfinder: { setMovements() {}, setGoal() {}, goto: async () => {} },
+    dig: async () => {},
+    heldItem: null,
+    equip: async () => {},
+    clearControlStates() {}
+  };
+  const executor = createTaskExecutor({ bot, config: {} });
+  const result = await executor.start({
+    type: 'mine', resources: ['iron'], bonusResources: [], amount: 8, maxDistance: 32
+  }, 'Owner');
+  assert.equal(result, false, 'the task stops instead of mining without a proper tool');
+  assert.deepEqual(crafted, [1, 2, 3, 4, 5], 'wood, table, and pickaxes are crafted in order before mining');
 });

@@ -27,6 +27,17 @@ wood**, **mine iron**, **bring food**, or **cook**. Tasks use loaded nearby chun
 select suitable tools, try a normal alternate path first, and stop on missing
 materials, unsafe/unavailable routes, action limits, or time limits. Iron mining
 checks for nearby coal as a bonus; copper is never added unless requested.
+
+Extra skills: a failed safe route is retried once before any fallback is
+considered. If a mining task needs a pickaxe the bot does not have, it can
+craft its way up from wood — planks, sticks, a crafting table, a wooden
+pickaxe, and (for ores that need stone tier) gathered cobblestone into a stone
+pickaxe. This is bounded, reported in chat, and can be disabled with
+`player-skills.tasks.autoCraftTools: false`. Ores that require an iron pickaxe
+or better (gold, diamond) are reported honestly instead of mined without drops.
+The bot can also **smelt** raw iron, copper, or gold it is carrying into ingots
+with the same fuel-aware furnace flow used for cooking.
+
 Food delivery means dropping the collected items near the requester—Minecraft
 does not provide a guaranteed direct inventory transfer. Cooking uses a nearby
 furnace or can craft/place one if the bot has the required materials, crafting

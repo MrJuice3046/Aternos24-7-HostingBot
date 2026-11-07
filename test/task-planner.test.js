@@ -39,3 +39,11 @@ test('resource quantities are bounded and tasks are restricted to trusted users'
   assert.equal(parseTaskRequest('what is a creeper?'), null);
   assert.equal(parseTaskRequest("don't mine iron", 'Owner'), null);
 });
+
+test('smelting requests map to bounded ore plans', () => {
+  const plan = parseTaskRequest('smelt iron', 'Owner');
+  assert.equal(plan.type, 'smelt');
+  assert.deepEqual(plan.resources, ['iron']);
+  assert.deepEqual(parseTaskRequest('smelt gold', 'Owner').resources, ['gold']);
+  assert.equal(parseTaskRequest('cook', 'Owner').type, 'cook');
+});
