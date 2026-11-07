@@ -21,28 +21,50 @@ and its coordinates.
 
 ## Player Skills (Experimental)
 
-The optional player-skill layer adds practical Minecraft awareness, basic
-priority-based decision making, and chat interaction. It currently covers
-health/food/threat awareness, trusted-player follow and stay commands, status,
-position, inventory, nearby-player and world-time replies, polite greetings,
-cooldowns, and short-term interaction tracking. It does not make the bot a
-human player: it has no general understanding, memory across restarts, or
-universal knowledge of Minecraft, and it does not autonomously build, mine,
-trade, or complete arbitrary quests.
+The optional player-skill layer adds a bounded task planner and Mineflayer
+executor. Trusted players can ask in ordinary chat to **come here**, **chop
+wood**, **mine iron**, **bring food**, or **cook**. Tasks use loaded nearby chunks,
+select suitable tools, try a normal alternate path first, and stop on missing
+materials, unsafe/unavailable routes, action limits, or time limits. Iron mining
+checks for nearby coal as a bonus; copper is never added unless requested.
+Food delivery means dropping the collected items near the requester—Minecraft
+does not provide a guaranteed direct inventory transfer. Cooking uses a nearby
+furnace or can craft/place one if the bot has the required materials, crafting
+table access, and safe placement space.
+
+The bot automatically eats when its hunger reaches the configured threshold if
+it has suitable food. If `autoHuntForFood` is enabled, hunger is critically low,
+and it has no food, it may hunt only a small allowlist of passive food animals.
+The unrelated combat loop now excludes passive animals and protected friendly
+mobs. Health-critical task interruption and the existing health/food status
+checks reduce risk but do not guarantee survival.
 
 The catalog exposes **36 core behavior definitions** and **10,240 generated
 strategy variants** (8 domains × 16 situations × 16 strategies × 5 communication
 styles). These are composable situation/style variants, not 10,240 separately
-implemented or learned abilities. The planner ranks urgent conditions first;
-the catalog is inspectable at `/skills`, and `/health` includes current skill
-state.
+implemented or learned abilities. The deterministic planner only recognizes a
+small, explicit task allowlist; it is not a general human-like mind and has no
+persistent memory. The catalog is inspectable at `/skills`; `/health` reports
+the active task without exposing credentials.
 
-Chat commands begin with `!bot`. Anyone may ask for help, status, position,
-inventory, nearby players, or world time. Only names in `chat.tpWhitelist` or
-`player-skills.owners` may move the bot with `!bot follow [player]`, `!bot come`,
-`!bot stay`, or `!bot stop`. Keep those lists limited to trusted people. The
-layer is enabled in `settings.example.json` and can be disabled with
-`"player-skills": { "enabled": false }`.
+Only names in `chat.tpWhitelist` or `player-skills.owners` may start or cancel
+tasks or use movement commands. Keep these lists limited to trusted people.
+Recognized tasks have bounded distance, actions, and duration, and only one task
+can run at a time. Send `stop` to cancel. `allowDigFallback` and
+`allowScaffoldFallback` are **false by default**: turn them on in
+`player-skills.tasks` only if you accept world edits. After a safe route fails or
+times out, the optional fallback may break blocks or use Pathfinder-supported
+one-block scaffolding. It is not a general-purpose bridge builder, and native
+26.3 pathfinding has not been verified against a live server.
+
+General conversation can optionally use an OpenAI-compatible chat API. Set
+`player-skills.ai.enabled` to `true` and supply `PLAYER_AI_API_KEY` as an
+environment variable; choose the endpoint/model in the sample settings. Player
+chat sent to this external API may incur provider charges. The model is only a
+  text responder: it has no game tools, cannot authorize actions, and cannot
+  bypass the deterministic trusted-player task allowlist. It is disabled by
+  default, and enabled chat is capped at 12 requests per minute by default.
+  Without a key, the bot still handles the local commands and tasks.
 
 ---
 

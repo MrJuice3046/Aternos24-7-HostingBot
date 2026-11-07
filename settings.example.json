@@ -75,7 +75,23 @@
   "player-skills": {
     "enabled": true,
     "replyCooldownMs": 4000,
-    "owners": []
+    "owners": [],
+    "autoEatAtFood": 14,
+    "autoHuntForFood": true,
+    "tasks": {
+      "maxDurationMs": 180000,
+      "maxActions": 24,
+      "maxDistance": 32,
+      "pathTimeoutMs": 20000,
+      "allowDigFallback": false,
+      "allowScaffoldFallback": false
+    },
+    "ai": {
+      "enabled": false,
+      "model": "gpt-4o-mini",
+      "baseUrl": "https://api.openai.com/v1",
+      "maxRequestsPerMinute": 12
+    }
   },
   "discord": {
     "enabled": false,

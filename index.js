@@ -9,13 +9,18 @@ const express = require('express');
 const http = require('http');
 const https = require('https');
 const { resolveBotVersion } = require('./lib/version');
-const { createPlayerSkills, getSkillCatalogSummary } = require('./lib/player-skills');
+const { createPlayerSkills, getSkillCatalogSummary, parseIntent } = require('./lib/player-skills');
+const { parseTaskRequest, authorizeTask } = require('./lib/task-planner');
+const { createTaskExecutor } = require('./lib/task-executor');
+const { createAiChat } = require('./lib/ai-chat');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 let bot = null;
 let playerSkills = null;
+let taskExecutor = null;
+let aiChat = null;
 let activeIntervals = [];
 let reconnectTimeoutId = null;
 let connectionTimeoutId = null;
@@ -257,14 +262,18 @@ app.get('/health', (req, res) => {
     lastActivity: botState.lastActivity,
     reconnectAttempts: botState.reconnectAttempts,
     memoryUsage: process.memoryUsage().heapUsed / 1024 / 1024,
-    playerSkills: playerSkills ? playerSkills.snapshot() : null
+    playerSkills: playerSkills ? playerSkills.snapshot() : null,
+    task: taskExecutor?.current() || null,
+    aiChatEnabled: Boolean(aiChat)
   });
 });
 
 app.get('/skills', (req, res) => {
   res.json({
     ...getSkillCatalogSummary(),
-    active: playerSkills ? playerSkills.snapshot() : null
+    active: playerSkills ? playerSkills.snapshot() : null,
+    task: taskExecutor?.current() || null,
+    aiChatEnabled: Boolean(aiChat)
   });
 });
 
@@ -355,8 +364,11 @@ function createBot() {
   }
 
   if (bot) {
+    taskExecutor?.cancel();
     if (playerSkills) playerSkills.stopFollowing();
     playerSkills = null;
+    taskExecutor = null;
+    aiChat = null;
     clearAllIntervals();
     try { bot.removeAllListeners(); bot.end(); } catch (e) {
       console.log('[Cleanup] Error ending previous bot:', e.message);
@@ -436,6 +448,9 @@ function createBot() {
       const defaultMove = new Movements(bot, mcData);
       defaultMove.allowFreeMotion = false;
       defaultMove.canDig = false;
+      defaultMove.allow1by1towers = false;
+      defaultMove.allowParkour = false;
+      defaultMove.maxDropDown = 2;
       defaultMove.liquidCost = 1000;
       defaultMove.fallDamageCost = 1000;
 
@@ -462,6 +477,8 @@ function createBot() {
       const kickReason = typeof reason === 'object' ? JSON.stringify(reason) : reason;
       console.log(`[Bot] Kicked: ${kickReason}`);
       botState.connected = false;
+      taskExecutor?.cancel();
+      playerSkills?.stopFollowing();
       pushError({ type: 'kicked', reason: kickReason, time: Date.now() });
       clearAllIntervals();
 
@@ -480,6 +497,8 @@ function createBot() {
     bot.on('end', (reason) => {
       console.log(`[Bot] Disconnected: ${reason || 'Unknown'}`);
       botState.connected = false;
+      taskExecutor?.cancel();
+      playerSkills?.stopFollowing();
       clearAllIntervals();
       spawnHandled = false;
 
@@ -532,14 +551,70 @@ function initializeModules(bot, mcData, defaultMove, authPassword) {
     ? null
     : createPlayerSkills({ bot, config, GoalFollow });
   if (playerSkills) {
+    taskExecutor = createTaskExecutor({
+      bot,
+      mcData,
+      config,
+      defaultMovements: defaultMove,
+      Movements,
+      onStatus: (text, username) => playerSkills?.reply(text, username)
+    });
+    const aiConfig = config['player-skills']?.ai || {};
+    aiChat = createAiChat({
+      enabled: aiConfig.enabled === true,
+      apiKey: process.env.PLAYER_AI_API_KEY,
+      baseUrl: aiConfig.baseUrl,
+      model: aiConfig.model,
+      maxRequestsPerMinute: aiConfig.maxRequestsPerMinute
+    });
+    if (aiConfig.enabled && !aiChat) {
+      console.warn('[AI] Chat is enabled in settings, but PLAYER_AI_API_KEY is missing; AI replies are disabled.');
+    }
     playerSkills.think();
     addInterval(() => {
       if (bot && botState.connected) playerSkills?.think();
     }, 5000);
-    bot.on('chat', (username, message) => playerSkills?.handleChat(username, message));
+    addInterval(() => {
+      if (bot && botState.connected) void taskExecutor?.survivalTick();
+    }, 2500);
+    bot.on('chat', (username, message) => {
+      if (!playerSkills || username === bot.username) return;
+      const plan = parseTaskRequest(message, username);
+      if (plan) {
+        const trustedUsers = [
+          ...(config.chat?.tpWhitelist || []),
+          ...(config['player-skills']?.owners || [])
+        ];
+        if (!authorizeTask(plan, username, trustedUsers)) {
+          playerSkills.reply('Only trusted players can start or cancel world-changing tasks.', username);
+          return;
+        }
+        if (plan.type === 'cancel') {
+          if (!taskExecutor?.cancel()) {
+            if (playerSkills.snapshot().mode === 'follow') {
+              playerSkills.stopFollowing();
+              playerSkills.reply('Okay, I stopped and will stay here.', username);
+            } else {
+              playerSkills.reply('I do not have a task to stop.', username);
+            }
+          }
+          return;
+        }
+        if (playerSkills.snapshot().mode === 'follow') playerSkills.stopFollowing();
+        void taskExecutor?.start(plan, username);
+        return;
+      }
+
+      const handled = playerSkills.handleChat(username, message);
+      if (handled || parseIntent(message).type !== 'unknown' || !aiChat) return;
+      void aiChat.reply(username, message).then(answer => {
+        if (answer && botState.connected && bot) playerSkills?.reply(answer, username);
+      });
+    });
     console.log(
       `[Skills] ${getSkillCatalogSummary().coreSkills} core behaviors and ` +
-      `${getSkillCatalogSummary().generatedVariants.toLocaleString()} strategy variants loaded.`
+      `${getSkillCatalogSummary().generatedVariants.toLocaleString()} strategy variants loaded; ` +
+      `task executor ${taskExecutor ? 'ready' : 'off'}, AI chat ${aiChat ? 'enabled' : 'off'}.`
     );
   }
 
@@ -604,17 +679,17 @@ function initializeModules(bot, mcData, defaultMove, authPassword) {
   if (config.utils['anti-afk']?.enabled) {
 
     addInterval(() => {
-      if (!bot || !botState.connected) return;
+      if (!bot || !botState.connected || hasTaskMovementControl()) return;
       try { bot.swingArm(); } catch (e) { }
     }, 10000 + Math.floor(Math.random() * 50000));
 
     addInterval(() => {
-      if (!bot || !botState.connected) return;
+      if (!bot || !botState.connected || hasTaskMovementControl()) return;
       try { bot.setQuickBarSlot(Math.floor(Math.random() * 9)); } catch (e) { }
     }, 30000 + Math.floor(Math.random() * 90000));
 
     addInterval(() => {
-      if (!bot || !botState.connected || typeof bot.setControlState !== 'function') return;
+      if (!bot || !botState.connected || hasTaskMovementControl() || typeof bot.setControlState !== 'function') return;
       if (Math.random() > 0.9) {
         let count = 2 + Math.floor(Math.random() * 4);
         const doTeabag = () => {
@@ -634,7 +709,7 @@ function initializeModules(bot, mcData, defaultMove, authPassword) {
 
     if (!(config.movement?.['circle-walk']?.enabled)) {
       addInterval(() => {
-        if (!bot || !botState.connected || typeof bot.setControlState !== 'function') return;
+        if (!bot || !botState.connected || hasTaskMovementControl() || typeof bot.setControlState !== 'function') return;
         try {
           bot.look(Math.random() * Math.PI * 2, 0, true);
           bot.setControlState('forward', true);
@@ -710,13 +785,18 @@ function initializeModules(bot, mcData, defaultMove, authPassword) {
   console.log('[Modules] All modules initialized.');
 }
 
+function hasTaskMovementControl() {
+  const mode = playerSkills?.snapshot()?.mode;
+  return Boolean(taskExecutor?.isBusy()) || mode === 'follow' || mode === 'stay';
+}
+
 function startCircleWalk(bot, defaultMove) {
   const radius = config.movement['circle-walk'].radius;
   let angle = 0;
   let lastPathTime = 0;
 
   addInterval(() => {
-    if (!bot || !botState.connected) return;
+    if (!bot || !botState.connected || hasTaskMovementControl()) return;
     const now = Date.now();
     if (now - lastPathTime < 2000) return;
     lastPathTime = now;
@@ -736,7 +816,7 @@ function startCircleWalk(bot, defaultMove) {
 
 function startRandomJump(bot) {
   addInterval(() => {
-    if (!bot || !botState.connected || typeof bot.setControlState !== 'function') return;
+    if (!bot || !botState.connected || hasTaskMovementControl() || typeof bot.setControlState !== 'function') return;
     try {
       bot.setControlState('jump', true);
       setTimeout(() => {
@@ -791,6 +871,16 @@ function combatModule(bot, mcData) {
   let lastAttackTime = 0;
   let lockedTarget = null;
   let lockedTargetExpiry = 0;
+  const protectedMobs = new Set([
+    'cow', 'pig', 'sheep', 'chicken', 'rabbit', 'goat', 'horse', 'donkey', 'mule',
+    'cat', 'wolf', 'fox', 'villager', 'wandering_trader', 'iron_golem', 'snow_golem', 'allay'
+  ]);
+  const isAttackable = entity => {
+    if (!entity || entity.type !== 'mob') return false;
+    const name = String(entity.name || '').replace(/^minecraft:/, '');
+    const registryEntry = mcData.entitiesByName?.[name];
+    return !protectedMobs.has(name) && registryEntry?.type !== 'animal' && registryEntry?.category !== 'Passive mobs';
+  };
 
   bot.on('physicsTick', () => {
     if (!bot || !botState.connected || !config.combat['attack-mobs']) return;
@@ -799,7 +889,7 @@ function combatModule(bot, mcData) {
 
     try {
 
-      if (lockedTarget && now < lockedTargetExpiry && bot.entities[lockedTarget.id] && lockedTarget.position) {
+      if (lockedTarget && isAttackable(lockedTarget) && now < lockedTargetExpiry && bot.entities[lockedTarget.id] && lockedTarget.position) {
         if (bot.entity.position.distanceTo(lockedTarget.position) < 4) {
           bot.attack(lockedTarget);
           lastAttackTime = now;
@@ -810,7 +900,7 @@ function combatModule(bot, mcData) {
       }
 
       const mobs = Object.values(bot.entities).filter(e =>
-        e.type === 'mob' && e.position && bot.entity.position.distanceTo(e.position) < 4
+        isAttackable(e) && e.position && bot.entity.position.distanceTo(e.position) < 4
       );
       if (mobs.length > 0) {
         lockedTarget = mobs[0];
@@ -824,7 +914,7 @@ function combatModule(bot, mcData) {
   });
 
   bot.on('health', () => {
-    if (!config.combat['auto-eat']) return;
+    if (!config.combat['auto-eat'] || taskExecutor) return;
     try {
       if (bot.food < 14) {
         const food = bot.inventory.items().find(i => {
