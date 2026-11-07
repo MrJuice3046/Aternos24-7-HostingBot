@@ -43,6 +43,12 @@ current top-priority decision (`!bot why` works too). Add `and bring it to me`
 to a mining or chopping request and it walks to you and drops the collected
 items once the task finishes.
 
+It also understands follow-ups: `again` repeats the last task with the same
+bounds, and capability questions like `can you swim?` get an honest answer
+about what it can actually do. While mining or chopping it watches tool
+durability, skips nearly broken tools, and warns once when the equipped tool
+is close to breaking.
+
 Food delivery means dropping the collected items near the requester—Minecraft
 does not provide a guaranteed direct inventory transfer. Cooking uses a nearby
 furnace or can craft/place one if the bot has the required materials, crafting

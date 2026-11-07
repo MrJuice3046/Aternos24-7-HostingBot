@@ -44,6 +44,7 @@ test('chat parser recognizes explicit bot commands and common social intents', (
   });
   assert.equal(parseIntent('Hello there!').type, 'greeting');
   assert.equal(parseIntent('what can you do?').type, 'help');
+  assert.equal(parseIntent('can you swim?').type, 'capability');
   assert.equal(parseIntent('ordinary chat').type, 'unknown');
 });
 
@@ -125,4 +126,7 @@ test('the bot can explain its current thinking when asked why', () => {
   clock += 1001;
   assert.equal(skills.handleChat('Owner', '!bot why'), true);
   assert.match(messages.at(-1), /observing/i);
+  clock += 1001;
+  assert.equal(skills.handleChat('Owner', 'can you swim?'), true);
+  assert.match(messages.at(-1), /chop wood/i);
 });

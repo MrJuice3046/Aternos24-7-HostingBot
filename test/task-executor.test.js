@@ -154,3 +154,34 @@ test('mining delivers the requested resources to the requester when asked', asyn
   assert.equal(result, true);
   assert.deepEqual(tossed, [5], 'the whole carried raw-iron stack is dropped for the requester');
 });
+
+test('tool selection skips nearly broken tools and uses a fresh one', async () => {
+  const equipped = [];
+  const bot = {
+    entity: { position: { x: 0, y: 64, z: 0 } },
+    username: 'Bot',
+    players: {},
+    inventory: { items: () => [
+      { name: 'stone_axe', type: 11, metadata: 0, count: 1, durabilityUsed: 58 },
+      { name: 'iron_axe', type: 12, metadata: 0, count: 1, durabilityUsed: 0 }
+    ] },
+    findBlock: () => ({ position: { x: 1, y: 64, z: 1 }, name: 'oak_log', diggable: true }),
+    blockAt: () => ({ name: 'oak_log', diggable: true }),
+    dig: async () => {},
+    equip: async item => { equipped.push(item.name); bot.heldItem = item; },
+    pathfinder: { setMovements() {}, setGoal() {}, goto: async () => {} },
+    clearControlStates() {}
+  };
+  const executor = createTaskExecutor({
+    bot,
+    mcData: { itemsByName: { stone_axe: { maxDurability: 60 }, iron_axe: { maxDurability: 250 } } },
+    config: {},
+    sleep: async () => {}
+  });
+  const result = await executor.start(
+    { type: 'gather', resource: 'logs', resources: ['logs'], amount: 1, maxDistance: 32 },
+    'Owner'
+  );
+  assert.equal(result, true);
+  assert.deepEqual(equipped, ['iron_axe'], 'the nearly broken stone axe is never selected');
+});

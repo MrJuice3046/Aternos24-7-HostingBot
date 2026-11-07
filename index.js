@@ -10,7 +10,7 @@ const http = require('http');
 const https = require('https');
 const { resolveBotVersion } = require('./lib/version');
 const { createPlayerSkills, getSkillCatalogSummary, parseIntent } = require('./lib/player-skills');
-const { parseTaskRequest, authorizeTask } = require('./lib/task-planner');
+const { parseTaskRequest, authorizeTask, rememberPlan } = require('./lib/task-planner');
 const { createTaskExecutor } = require('./lib/task-executor');
 const { createAiChat } = require('./lib/ai-chat');
 
@@ -600,6 +600,7 @@ function initializeModules(bot, mcData, defaultMove, authPassword) {
           }
           return;
         }
+        rememberPlan(plan);
         if (playerSkills.snapshot().mode === 'follow') playerSkills.stopFollowing();
         void taskExecutor?.start(plan, username);
         return;

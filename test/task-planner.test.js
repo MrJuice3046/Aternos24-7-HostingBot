@@ -2,7 +2,9 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { parseTaskRequest, authorizeTask, MAX_TASK_AMOUNT } = require('../lib/task-planner');
+const {
+  parseTaskRequest, authorizeTask, rememberPlan, resetTaskMemory, MAX_TASK_AMOUNT
+} = require('../lib/task-planner');
 
 test('understands come, chop, food, cook, and stop requests', () => {
   assert.equal(parseTaskRequest('come to me', 'Owner').type, 'come');
@@ -46,4 +48,17 @@ test('smelting requests map to bounded ore plans', () => {
   assert.deepEqual(plan.resources, ['iron']);
   assert.deepEqual(parseTaskRequest('smelt gold', 'Owner').resources, ['gold']);
   assert.equal(parseTaskRequest('cook', 'Owner').type, 'cook');
+});
+
+test('understands follow-ups like "again" by repeating the last task plan', () => {
+  resetTaskMemory();
+  assert.equal(parseTaskRequest('again', 'Owner'), null);
+  const mine = parseTaskRequest('mine iron', 'Owner');
+  rememberPlan(mine);
+  const again = parseTaskRequest('do it again', 'Owner');
+  assert.deepEqual(again, mine);
+  assert.notEqual(again, mine, 'the repeated plan is a copy, not the stored one');
+  assert.equal(parseTaskRequest('more', 'Owner').requester, 'Owner');
+  resetTaskMemory();
+  assert.equal(parseTaskRequest('one more time', 'Owner'), null);
 });
