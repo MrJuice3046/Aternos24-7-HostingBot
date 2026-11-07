@@ -9,15 +9,16 @@ const {
   getSkillCatalogSummary,
   analyzeSituation,
   parseIntent,
+  GESTURES,
   createPlayerSkills
 } = require('../lib/player-skills');
 
-test('skill catalog exposes 36 core behaviors and more than 10,000 composable variants', () => {
+test('skill catalog exposes 40 core behaviors and more than 10,000 composable variants', () => {
   const summary = getSkillCatalogSummary();
-  assert.equal(summary.coreSkills, 36);
+  assert.equal(summary.coreSkills, 40);
   assert.ok(SKILL_VARIANT_COUNT >= 10000);
   assert.equal(SKILL_VARIANT_COUNT, 10240);
-  assert.equal(CORE_SKILLS.length, 36);
+  assert.equal(CORE_SKILLS.length, 40);
   const variants = [...iterateSkillVariants()];
   assert.equal(variants.length, 10240);
   assert.equal(variants[0].id, 'variant-00001');
@@ -45,7 +46,50 @@ test('chat parser recognizes explicit bot commands and common social intents', (
   assert.equal(parseIntent('Hello there!').type, 'greeting');
   assert.equal(parseIntent('what can you do?').type, 'help');
   assert.equal(parseIntent('can you swim?').type, 'capability');
+  assert.deepEqual(parseIntent('wave'), { type: 'command', action: 'wave', args: [], raw: 'wave' });
+  assert.equal(parseIntent('shake your head').action, 'shake');
+  assert.equal(parseIntent('what did you hear?').type, 'senses');
+  assert.equal(parseIntent('what effects do you have?').type, 'senses');
+  assert.equal(parseIntent('have you ever died?').type, 'death');
   assert.equal(parseIntent('ordinary chat').type, 'unknown');
+});
+
+test('gesture commands perform actions and recent sound/effect cues can be recalled', async () => {
+  let clock = 30000;
+  const messages = [];
+  const gestures = [];
+  const bot = {
+    username: 'AFKBot',
+    entity: { position: { x: 1, y: 64, z: 1 }, yaw: 0 },
+    players: {},
+    entities: {},
+    inventory: { items: () => [] },
+    chat: message => messages.push(message),
+    swingArm: () => gestures.push('swing'),
+    setControlState: state => gestures.push(state),
+    look: async () => {},
+    pathfinder: { setGoal() {} },
+    clearControlStates() {}
+  };
+  const skills = createPlayerSkills({
+    bot,
+    config: { 'player-skills': { replyCooldownMs: 1000 } },
+    now: () => clock,
+    sleep: async () => {}
+  });
+  assert.equal(skills.handleChat('Owner', 'wave'), true);
+  await GESTURES.wave.run(bot, async () => {});
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(gestures.filter(value => value === 'swing').length, 6);
+  skills.noteEvent('sound', { x: 3, y: 64, z: 1 }, 'Heard zombie growl about 2 blocks away');
+  clock += 1001;
+  assert.equal(skills.handleChat('Owner', 'what did you hear?'), true);
+  assert.match(messages.at(-1), /zombie growl/i);
+  clock += 1001;
+  const deathMemory = { summary: () => 'I died once near a creeper.' };
+  const withMemory = createPlayerSkills({ bot, config: {}, deathMemory, now: () => clock });
+  assert.equal(withMemory.handleChat('Owner', 'have you ever died?'), true);
+  assert.match(messages.at(-1), /creeper/i);
 });
 
 test('player-skill chat limits movement to trusted users and honors reply cooldowns', () => {

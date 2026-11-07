@@ -185,3 +185,33 @@ test('tool selection skips nearly broken tools and uses a fresh one', async () =
   assert.equal(result, true);
   assert.deepEqual(equipped, ['iron_axe'], 'the nearly broken stone axe is never selected');
 });
+
+test('mining target selection excludes blocks near a remembered death spot', async () => {
+  let acceptedRiskyBlock = null;
+  let dug = false;
+  const riskyBlock = { name: 'iron_ore', position: { x: 2, y: 64, z: 0 }, diggable: true };
+  const bot = {
+    entity: { position: { x: 0, y: 64, z: 0 } },
+    username: 'Bot',
+    players: {},
+    inventory: { items: () => [{ name: 'stone_pickaxe', type: 30, metadata: 0, count: 1 }] },
+    findBlock: ({ matching }) => {
+      acceptedRiskyBlock = matching(riskyBlock);
+      return acceptedRiskyBlock ? riskyBlock : null;
+    },
+    blockAt: () => riskyBlock,
+    dig: async () => { dug = true; },
+    equip: async () => {},
+    pathfinder: { setMovements() {}, setGoal() {}, goto: async () => {} },
+    clearControlStates() {}
+  };
+  const executor = createTaskExecutor({
+    bot,
+    deathMemory: { shouldAvoidSpot: position => position.x === 2 },
+    config: {},
+    sleep: async () => {}
+  });
+  await executor.start({ type: 'mine', resources: ['iron'], amount: 1, maxDistance: 32 }, 'Owner');
+  assert.equal(acceptedRiskyBlock, false);
+  assert.equal(dug, false, 'the bot does not dig in its remembered death zone');
+});

@@ -3,7 +3,7 @@
 require('./lib/protocol-compat');
 const mineflayer = require('mineflayer');
 const { Movements, pathfinder, goals } = require('mineflayer-pathfinder');
-const { GoalBlock, GoalFollow } = goals;
+const { GoalBlock, GoalFollow, GoalNear } = goals;
 const config = require('./settings.json');
 const express = require('express');
 const http = require('http');
@@ -13,6 +13,7 @@ const { createPlayerSkills, getSkillCatalogSummary, parseIntent } = require('./l
 const { parseTaskRequest, authorizeTask, rememberPlan } = require('./lib/task-planner');
 const { createTaskExecutor } = require('./lib/task-executor');
 const { createAiChat } = require('./lib/ai-chat');
+const { createDeathMemory } = require('./lib/death-memory');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,6 +22,7 @@ let bot = null;
 let playerSkills = null;
 let taskExecutor = null;
 let aiChat = null;
+let deathMemory = null;
 let activeIntervals = [];
 let reconnectTimeoutId = null;
 let connectionTimeoutId = null;
@@ -547,9 +549,17 @@ function scheduleReconnect() {
 function initializeModules(bot, mcData, defaultMove, authPassword) {
   console.log('[Modules] Initializing...');
 
+  deathMemory = createDeathMemory({ bot });
+  bot.on('entityHurt', (entity, source) => {
+    if (entity?.id === bot.entity?.id) deathMemory?.noteDamage(source);
+  });
+  bot.on('death', () => {
+    const death = deathMemory?.recordDeath();
+    if (death) console.log(`[Memory] Recorded death; likely cause: ${death.threat}.`);
+  });
   playerSkills = config['player-skills']?.enabled === false
     ? null
-    : createPlayerSkills({ bot, config, GoalFollow });
+    : createPlayerSkills({ bot, config, GoalFollow, deathMemory });
   if (playerSkills) {
     taskExecutor = createTaskExecutor({
       bot,
@@ -557,8 +567,53 @@ function initializeModules(bot, mcData, defaultMove, authPassword) {
       config,
       defaultMovements: defaultMove,
       Movements,
+      deathMemory,
       onStatus: (text, username) => playerSkills?.reply(text, username)
     });
+    bot.on('entityEffect', (entity, effect) => {
+      if (entity?.id !== bot.entity?.id) return;
+      const entry = Object.values(mcData?.effectsByName || {}).find(item => item.id === effect?.id);
+      const label = entry?.name || `effect ${effect?.id}`;
+      playerSkills?.noteEvent('effect', bot.entity?.position, `Gained ${label}${effect?.amplifier >= 0 ? ` (level ${effect.amplifier + 1})` : ''}`);
+    });
+    bot.on('entityEffectEnd', (entity, effect) => {
+      if (entity?.id !== bot.entity?.id) return;
+      const entry = Object.values(mcData?.effectsByName || {}).find(item => item.id === effect?.id);
+      playerSkills?.noteEvent('effect', bot.entity?.position, `Lost ${entry?.name || `effect ${effect?.id}`}`);
+    });
+    bot.on('soundEffectHeard', (soundName, position) => {
+      const name = String(soundName || '').replace(/^minecraft:/, '');
+      if (!name) return;
+      const relevant = /creeper|zombie|skeleton|spider|enderman|warden|witch|pillager|drowned|phantom|explosion|lightning|thunder|player_hurt|entity\.generic\.hurt|entity\.player\.hurt/i.test(name);
+      if (!relevant) return;
+      const distance = bot.entity?.position?.distanceTo?.(position);
+      if (Number.isFinite(distance) && distance > 16) return;
+      playerSkills?.noteEvent('sound', position, `Heard ${name}${Number.isFinite(distance) ? ` about ${Math.round(distance)} blocks away` : ''}`);
+    });
+    let learnedRetreatAt = 0;
+    addInterval(() => {
+      if (!botState.connected || !bot.entity || !Number.isFinite(bot.health) || bot.health > 10) return;
+      const learnedThreat = deathMemory?.knownKillerNear(8);
+      if (!learnedThreat || Date.now() - learnedRetreatAt < 8000) return;
+      learnedRetreatAt = Date.now();
+      taskExecutor?.cancel();
+      if (playerSkills?.snapshot().mode === 'follow') playerSkills.stopFollowing();
+      const from = bot.entity.position;
+      const to = learnedThreat.entity.position;
+      const dx = from.x - to.x;
+      const dz = from.z - to.z;
+      const length = Math.hypot(dx, dz) || 1;
+      const retreatGoal = new GoalNear(
+        Math.floor(from.x + dx / length * 8),
+        Math.floor(from.y),
+        Math.floor(from.z + dz / length * 8),
+        2
+      );
+      playerSkills?.reply(`I was hurt by a ${learnedThreat.name} before. Health is low, so I am backing away.`, null);
+      Promise.resolve(bot.pathfinder?.goto?.(retreatGoal)).catch(() => {
+        try { bot.setControlState('back', true); setTimeout(() => bot?.setControlState?.('back', false), 700); } catch (_) {}
+      });
+    }, 1000);
     const aiConfig = config['player-skills']?.ai || {};
     aiChat = createAiChat({
       enabled: aiConfig.enabled === true,
@@ -891,6 +946,7 @@ function combatModule(bot, mcData) {
     if (!entity || entity.type !== 'mob') return false;
     const name = String(entity.name || '').replace(/^minecraft:/, '');
     const registryEntry = mcData.entitiesByName?.[name];
+    if (deathMemory?.knownKiller(name)) return false;
     return !protectedMobs.has(name) && registryEntry?.type !== 'animal' && registryEntry?.category !== 'Passive mobs';
   };
 

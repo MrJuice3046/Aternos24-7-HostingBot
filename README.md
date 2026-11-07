@@ -49,6 +49,16 @@ about what it can actually do. While mining or chopping it watches tool
 durability, skips nearly broken tools, and warns once when the equipped tool
 is close to breaking.
 
+Gesture commands include `wave`, `dance`, `bow`, `nod`, `shake your head`, and
+`jump` (or `!bot wave`, etc.). The bot can report recent nearby hostile-mob or
+explosion sounds and its own potion-effect changes when asked `what did you
+hear?` or `what effects do you have?`. It keeps up to 20 death records in the
+local, git-ignored `data/death-memory.json`, including the last location and a
+recent attacker when Mineflayer provides one. It avoids mining/chopping within
+5 blocks of a remembered death spot and, when health is low, tries to retreat
+from a previously recorded attacker instead of engaging it again. Unknown
+causes remain marked unknown rather than being guessed.
+
 Food delivery means dropping the collected items near the requester—Minecraft
 does not provide a guaranteed direct inventory transfer. Cooking uses a nearby
 furnace or can craft/place one if the bot has the required materials, crafting
@@ -61,12 +71,13 @@ The unrelated combat loop now excludes passive animals and protected friendly
 mobs. Health-critical task interruption and the existing health/food status
 checks reduce risk but do not guarantee survival.
 
-The catalog exposes **36 core behavior definitions** and **10,240 generated
+The catalog exposes **40 core behavior definitions** and **10,240 generated
 strategy variants** (8 domains × 16 situations × 16 strategies × 5 communication
 styles). These are composable situation/style variants, not 10,240 separately
 implemented or learned abilities. The deterministic planner only recognizes a
-small, explicit task allowlist; it is not a general human-like mind and has no
-persistent memory. The catalog is inspectable at `/skills`; `/health` reports
+small, explicit task allowlist; it is not a general human-like mind. Its only
+persistent memory is the bounded local death log described above—not general
+personal memory. The catalog is inspectable at `/skills`; `/health` reports
 the active task without exposing credentials.
 
 Only names in `chat.tpWhitelist` or `player-skills.owners` may start or cancel
