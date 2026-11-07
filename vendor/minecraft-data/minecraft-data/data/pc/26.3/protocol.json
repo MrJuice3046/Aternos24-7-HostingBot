@@ -282,7 +282,11 @@
           "114": "cat/collar",
           "115": "sheep/color",
           "116": "shulker/color",
-          "117": "provides_pottery_pattern"
+          "117": "provides_pottery_pattern",
+          "118": "sign_text_front",
+          "119": "sign_text_back",
+          "120": "waxed",
+          "121": "cushion/color"
         }
       }
     ],
@@ -1692,7 +1696,11 @@
                     }
                   ]
                 ],
-                "provides_pottery_pattern": "varint"
+                "provides_pottery_pattern": "varint",
+                "sign_text_front": "SignText",
+                "sign_text_back": "SignText",
+                "waxed": "void",
+                "cushion/color": "DyeColor"
               }
             }
           ]
@@ -5183,6 +5191,42 @@
           ]
         }
       ]
+    ],
+    "SignText": [
+      "container",
+      [
+        {
+          "name": "messages",
+          "type": [
+            "array",
+            {
+              "count": 4,
+              "type": "anonymousNbt"
+            }
+          ]
+        },
+        {
+          "name": "filteredMessages",
+          "type": [
+            "option",
+            [
+              "array",
+              {
+                "count": 4,
+                "type": "anonymousNbt"
+              }
+            ]
+          ]
+        },
+        {
+          "name": "color",
+          "type": "DyeColor"
+        },
+        {
+          "name": "hasGlowingText",
+          "type": "bool"
+        }
+      ]
     ]
   },
   "handshaking": {
@@ -6015,7 +6059,7 @@
                     ],
                     "item": "varint",
                     "item_stack": "ItemStackTemplate",
-                    "tag": "string",
+                    "tag": "IDSet",
                     "dyed_slot_demo": [
                       "container",
                       [

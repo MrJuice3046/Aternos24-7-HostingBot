@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const minecraftData = require('minecraft-data');
 const minecraftProtocol = require('minecraft-protocol');
-const { createDeserializer } = require('minecraft-protocol/src/transforms/serializer');
+const { createDeserializer, createSerializer } = require('minecraft-protocol/src/transforms/serializer');
 const physics = require('prismarine-physics');
 const chunk = require('prismarine-chunk');
 
@@ -117,4 +117,49 @@ test('26.3 decodes the verified item component IDs and payload codecs', () => {
     data: { targetingEntityTypes: { name: 'minecraft:hostile' }, visibility: 2 }
   });
   assert.deepEqual(decode([117, 9]), { type: 'provides_pottery_pattern', data: 9 });
+});
+
+test('26.3 decodes the final item components and recipe tag IDSet', () => {
+  const deserializer = createDeserializer({ state: 'play', isServer: false, version: '26.3' });
+  const decode = (type, bytes) => deserializer.proto.parsePacketBuffer(type, Buffer.from(bytes)).data;
+  const color = decode('SlotComponent', [121, 9]);
+  assert.deepEqual(color, { type: 'cushion/color', data: 'cyan' });
+  assert.deepEqual(decode('SlotComponent', [120]), { type: 'waxed', data: undefined });
+  assert.deepEqual(decode('SlotDisplay', [6, 0, 16, ...Buffer.from('minecraft:planks')]), {
+    type: 'tag',
+    data: { name: 'minecraft:planks' }
+  });
+
+  const serializer = createSerializer({ state: 'play', isServer: false, version: '26.3' }).proto;
+  const message = { type: 'compound', name: 'test', value: { text: { type: 'string', value: 'hello' } } };
+  const signData = {
+    messages: [message, message, message, message],
+    filteredMessages: [message, message, message, message],
+    color: 'blue',
+    hasGlowingText: true
+  };
+  for (const [id, type] of [[118, 'sign_text_front'], [119, 'sign_text_back']]) {
+    const component = { type, data: signData };
+    const bytes = Buffer.alloc(serializer.sizeOf(component, 'SlotComponent'));
+    serializer.write(component, bytes, 0, 'SlotComponent');
+    assert.equal(bytes[0], id);
+    const parsed = decode('SlotComponent', bytes);
+    assert.equal(parsed.type, type);
+    assert.equal(parsed.data.messages.length, 4);
+    assert.equal(parsed.data.filteredMessages.length, 4);
+    assert.equal(parsed.data.messages[0].value.text.value, 'hello');
+    assert.equal(parsed.data.color, 'blue');
+    assert.equal(parsed.data.hasGlowingText, true);
+  }
+});
+
+test('captured 26.3 recipe_book_add frame decodes fully with tag holder sets', () => {
+  const frame = Buffer.from(
+    '4b01be02010202040600106d696e6563726166743a706c616e6b730600106d696e6563726166743a706c616e6b730600106d696e6563726166743a706c616e6b730600106d696e6563726166743a706c616e6b730595030100000495030003010400106d696e6563726166743a706c616e6b7300106d696e6563726166743a706c616e6b7300106d696e6563726166743a706c616e6b7300106d696e6563726166743a706c616e6b730200',
+    'hex'
+  );
+  const packet = createDeserializer({ state: 'play', isServer: false, version: '26.3' }).parsePacketBuffer(frame);
+  assert.equal(packet.data.name, 'recipe_book_add');
+  assert.equal(packet.metadata.size, frame.length);
+  assert.equal(packet.data.params.entries.length, 1);
 });
