@@ -19,9 +19,103 @@ and its coordinates.
 
 ---
 
+## Player Skills (Experimental)
+
+The optional player-skill layer adds a bounded task planner and Mineflayer
+executor. Trusted players can ask in ordinary chat to **come here**, **chop
+wood**, **mine iron**, **bring food**, or **cook**. Tasks use loaded nearby chunks,
+select suitable tools, try a normal alternate path first, and stop on missing
+materials, unsafe/unavailable routes, action limits, or time limits. Iron mining
+checks for nearby coal as a bonus; copper is never added unless requested.
+
+Extra skills: a failed safe route is retried once before any fallback is
+considered. If a mining task needs a pickaxe the bot does not have, it can
+craft its way up from wood — planks, sticks, a crafting table, a wooden
+pickaxe, and (for ores that need stone tier) gathered cobblestone into a stone
+pickaxe. This is bounded, reported in chat, and can be disabled with
+`player-skills.tasks.autoCraftTools: false`. Ores that require an iron pickaxe
+or better (gold, diamond) are reported honestly instead of mined without drops.
+The bot can also **smelt** raw iron, copper, or gold it is carrying into ingots
+with the same fuel-aware furnace flow used for cooking.
+
+Ask it `why` or `what are you doing?` and it replies with the reason behind its
+current top-priority decision (`!bot why` works too). Add `and bring it to me`
+to a mining or chopping request and it walks to you and drops the collected
+items once the task finishes.
+
+It also understands follow-ups: `again` repeats the last task with the same
+bounds, and capability questions like `can you swim?` get an honest answer
+about what it can actually do. While mining or chopping it watches tool
+durability, skips nearly broken tools, and warns once when the equipped tool
+is close to breaking.
+
+Food delivery means dropping the collected items near the requester—Minecraft
+does not provide a guaranteed direct inventory transfer. Cooking uses a nearby
+furnace or can craft/place one if the bot has the required materials, crafting
+table access, and safe placement space.
+
+The bot automatically eats when its hunger reaches the configured threshold if
+it has suitable food. If `autoHuntForFood` is enabled, hunger is critically low,
+and it has no food, it may hunt only a small allowlist of passive food animals.
+The unrelated combat loop now excludes passive animals and protected friendly
+mobs. Health-critical task interruption and the existing health/food status
+checks reduce risk but do not guarantee survival.
+
+The catalog exposes **36 core behavior definitions** and **10,240 generated
+strategy variants** (8 domains × 16 situations × 16 strategies × 5 communication
+styles). These are composable situation/style variants, not 10,240 separately
+implemented or learned abilities. The deterministic planner only recognizes a
+small, explicit task allowlist; it is not a general human-like mind and has no
+persistent memory. The catalog is inspectable at `/skills`; `/health` reports
+the active task without exposing credentials.
+
+Only names in `chat.tpWhitelist` or `player-skills.owners` may start or cancel
+tasks or use movement commands. Keep these lists limited to trusted people.
+Recognized tasks have bounded distance, actions, and duration, and only one task
+can run at a time. Send `stop` to cancel. `allowDigFallback` and
+`allowScaffoldFallback` are **false by default**: turn them on in
+`player-skills.tasks` only if you accept world edits. After a safe route fails or
+times out, the optional fallback may break blocks or use Pathfinder-supported
+one-block scaffolding. It is not a general-purpose bridge builder, and native
+26.3 pathfinding has not been verified against a live server.
+
+General conversation can optionally use an OpenAI-compatible chat API. Set
+`player-skills.ai.enabled` to `true` and supply `PLAYER_AI_API_KEY` as an
+environment variable; choose the endpoint/model in the sample settings. Player
+chat sent to this external API may incur provider charges. The model is only a
+  text responder: it has no game tools, cannot authorize actions, and cannot
+  bypass the deterministic trusted-player task allowlist. It is disabled by
+  default, and enabled chat is capped at 12 requests per minute by default.
+  Without a key, the bot still handles the local commands and tasks.
+
+---
+
+## Compatibility status
+
+The project now uses an experimental native 26.3 stack: the upstream Mineflayer
+26.3 commit, the upstream protocol-777 branch, vendored official 26.3 data,
+and local compatibility patches for Prismarine physics and chunk dispatch.
+
+**Native Minecraft Java Edition 26.3 is implemented experimentally, not claimed
+as stable.** The vendored data resolves protocol 777 and data version 5023.
+The project also loads the required physics and chunk implementations for
+26.3. A real login, configuration, chunk, movement, and long-running session
+against an authorized 26.3 server is still required before calling the stack
+fully verified.
+
+The compatibility report is in
+[`protocol-compatibility-report.md`](protocol-compatibility-report.md). It
+records the dependency audit, upstream evidence, baseline tests, and the exact
+requirements for a future native 26.3 verification. A ViaVersion or ViaProxy
+connection may provide proxy-translated compatibility, but that is not native
+26.3 support and must be tested separately.
+
+---
+
 ## Requirements
 
 - A GitHub account
+- Node.js 18 or newer for the published dependency set
 - A Minecraft server (see compatibility section below)
 - A hosting account for the bot (see deployment options below)
 
@@ -98,8 +192,8 @@ networks.
 
 1. Install Paper or Bukkit on your server.
 2. Enable offline/cracked mode so the bot can join without a paid account.
-3. Install these plugins: ViaVersion, ViaBackwards, ViaRewind.
-   These let the bot connect even if its version does not exactly match the server.
+3. For native 26.3 testing, do not use ViaVersion or ViaProxy between the bot
+   and the authorized 26.3 server. The bot now negotiates protocol 777 directly.
 4. In server.properties, set player-idle-timeout=0.
    This stops Minecraft from kicking the bot for being idle.
 
@@ -107,7 +201,9 @@ networks.
 
 ### Step 2 - Configure the bot
 
-Open settings.json and fill in these fields:
+Copy `settings.example.json` to `settings.json`, keep `settings.json` private,
+and fill in the required fields. The runtime intentionally reads
+`settings.json`, which is ignored by Git.
 
 ```json
 "bot-account": {
@@ -116,7 +212,9 @@ Open settings.json and fill in these fields:
 
 "server": {
   "ip": "your.server.ip",
-  "port": 25565
+  "port": 25565,
+  "version": "26.3",
+  "proxy-version-fallback": "26.1"
 }
 
 "utils": {
@@ -306,6 +404,24 @@ Visit /ping to confirm the service is running.
 
 ---
 
+## Testing
+
+Run the following commands after copying `settings.example.json` to a private
+`settings.json` and filling in an authorized test server:
+
+```bash
+npm ci
+npm test
+npm ls --depth=0
+```
+
+`npm test` currently performs a JavaScript syntax check. Protocol-level login,
+handshake, packet, and dashboard regression tests require a private test
+environment and are not implied by a passing syntax check. Do not use a public
+server or bypass authentication and hosting restrictions.
+
+---
+
 ## settings.json Reference
 
 | Key | What it does |
@@ -314,7 +430,8 @@ Visit /ping to confirm the service is running.
 | bot-account.type | Set to "offline" for cracked servers |
 | server.ip | Your server's IP address |
 | server.port | Your server's port (default 25565) |
-| server.version | Leave blank to auto-detect |
+| server.version | Native server version; use `26.3` for protocol 777 |
+| server.proxy-version-fallback | Optional fallback for an unsupported target version |
 | utils.auto-auth.enabled | Turn on if the server uses AuthMe or similar |
 | utils.chat-messages.repeat-delay | Seconds between periodic chat messages |
 | movement.circle-walk.enabled | Bot walks in a circle to appear human |

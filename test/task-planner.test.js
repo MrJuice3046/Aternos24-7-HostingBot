@@ -1,0 +1,64 @@
+'use strict';
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const {
+  parseTaskRequest, authorizeTask, rememberPlan, resetTaskMemory, MAX_TASK_AMOUNT
+} = require('../lib/task-planner');
+
+test('understands come, chop, food, cook, and stop requests', () => {
+  assert.equal(parseTaskRequest('come to me', 'Owner').type, 'come');
+  assert.equal(parseTaskRequest('!bot come', 'Owner').type, 'come');
+  assert.equal(parseTaskRequest('go and chop tree', 'Owner').resource, 'logs');
+  assert.deepEqual(parseTaskRequest('bring some foods', 'Owner'), {
+    type: 'food', requester: 'Owner', amount: 4, deliverTo: 'Owner', maxDistance: 32
+  });
+  assert.equal(parseTaskRequest('cook', 'Owner').type, 'cook');
+  assert.equal(parseTaskRequest('stop', 'Owner').type, 'cancel');
+});
+
+test('mining prioritizes iron and incidental coal but excludes unrequested copper', () => {
+  const iron = parseTaskRequest('mine iron', 'Owner');
+  assert.deepEqual(iron.resources, ['iron']);
+  assert.deepEqual(iron.bonusResources, ['coal']);
+  assert.equal(iron.copperExplicitlyRequested, false);
+  const explicit = parseTaskRequest('mine iron and coal', 'Owner');
+  assert.deepEqual(explicit.resources, ['iron', 'coal']);
+  assert.deepEqual(explicit.bonusResources, []);
+  assert.deepEqual(parseTaskRequest('mine copper', 'Owner').resources, ['copper']);
+  const skipCopper = parseTaskRequest('mine iron; copper is not necessary', 'Owner');
+  assert.deepEqual(skipCopper.resources, ['iron']);
+  assert.equal(skipCopper.copperExplicitlyRequested, false);
+  assert.deepEqual(parseTaskRequest("mine iron but don't mine coal", 'Owner').bonusResources, []);
+  assert.deepEqual(parseTaskRequest("mine iron and don't ignore coal", 'Owner').resources, ['iron', 'coal']);
+});
+
+test('resource quantities are bounded and tasks are restricted to trusted users', () => {
+  const plan = parseTaskRequest('mine 99 iron', 'Owner');
+  assert.equal(plan.amount, MAX_TASK_AMOUNT);
+  assert.equal(authorizeTask(plan, 'oWnEr', ['Owner']), true);
+  assert.equal(authorizeTask(plan, 'Guest', ['Owner']), false);
+  assert.equal(parseTaskRequest('what is a creeper?'), null);
+  assert.equal(parseTaskRequest("don't mine iron", 'Owner'), null);
+});
+
+test('smelting requests map to bounded ore plans', () => {
+  const plan = parseTaskRequest('smelt iron', 'Owner');
+  assert.equal(plan.type, 'smelt');
+  assert.deepEqual(plan.resources, ['iron']);
+  assert.deepEqual(parseTaskRequest('smelt gold', 'Owner').resources, ['gold']);
+  assert.equal(parseTaskRequest('cook', 'Owner').type, 'cook');
+});
+
+test('understands follow-ups like "again" by repeating the last task plan', () => {
+  resetTaskMemory();
+  assert.equal(parseTaskRequest('again', 'Owner'), null);
+  const mine = parseTaskRequest('mine iron', 'Owner');
+  rememberPlan(mine);
+  const again = parseTaskRequest('do it again', 'Owner');
+  assert.deepEqual(again, mine);
+  assert.notEqual(again, mine, 'the repeated plan is a copy, not the stored one');
+  assert.equal(parseTaskRequest('more', 'Owner').requester, 'Owner');
+  resetTaskMemory();
+  assert.equal(parseTaskRequest('one more time', 'Owner'), null);
+});

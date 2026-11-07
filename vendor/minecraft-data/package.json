@@ -1,0 +1,37 @@
+{
+  "name": "minecraft-data",
+  "version": "3.119.0",
+  "description": "Provide easy access to minecraft data in node.js",
+  "main": "index.js",
+  "tonicExampleFilename": "example.js",
+  "scripts": {},
+  "standard": {
+    "ignore": [
+      "minecraft-data/**/*.js"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:PrismarineJS/node-minecraft-data.git"
+  },
+  "keywords": [
+    "minecraft",
+    "data",
+    "node.js"
+  ],
+  "author": "Romain Beaumont <romain.rom1@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PrismarineJS/node-minecraft-data/issues"
+  },
+  "devDependencies": {
+    "minecraft-data": ".",
+    "@types/node": "^25.2.3",
+    "json-schema-to-typescript": "11.0.5",
+    "minecraft-packets": "^1.4.0",
+    "mocha": "^11.0.1",
+    "standard": "^17.0.0",
+    "typescript": "~5.9.2"
+  },
+  "dependencies": {}
+}

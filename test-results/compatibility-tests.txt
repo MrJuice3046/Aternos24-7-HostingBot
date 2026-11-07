@@ -1,0 +1,84 @@
+# Compatibility audit test log
+2026-11-05T21:01:22+00:00
+commit: d67c88657b0d510fbe2e83ab0b699152f6968e34
+node: v22.23.4
+npm: 10.9.9
+
+## git diff --check
+exit=0
+
+## JSON validation
+settings.example.json: valid JSON
+exit=0
+
+## JavaScript syntax
+exit=0
+
+## npm test
+
+> minecraft-afk-bot@2.2 test
+> node --check index.js
+
+exit=0
+
+## dependency consistency
+npm warn deprecated uuid@8.3.2: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+npm warn deprecated uuid@10.0.0: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+
+added 214 packages, and audited 215 packages in 5s
+
+29 packages are looking for funding
+  run `npm fund` for details
+
+18 vulnerabilities (3 low, 10 moderate, 4 high, 1 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+exit=0
+minecraft-afk-bot@2.2 /home/ubuntu/work/Aternos24-7-HostingBot
+├── eslint@10.8.1
+├── express@4.18.1
+├── minecraft-data@3.119.0
+├── mineflayer-pathfinder@2.4.5
+└── mineflayer@4.39.0
+
+exit=0
+
+## startup without private settings.json
+node:internal/modules/cjs/loader:1433
+  throw err;
+  ^
+
+Error: Cannot find module './settings.json'
+Require stack:
+- /home/ubuntu/work/Aternos24-7-HostingBot/index.js
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1430:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1040:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1045:22)
+    at Function._load (node:internal/modules/cjs/loader:1216:25)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Module.require (node:internal/modules/cjs/loader:1527:12)
+    at require (node:internal/modules/helpers:147:16)
+    at Object.<anonymous> (/home/ubuntu/work/Aternos24-7-HostingBot/index.js:6:16)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [ '/home/ubuntu/work/Aternos24-7-HostingBot/index.js' ]
+}
+
+Node.js v22.23.4
+exit=1 (expected failure until private settings.json is created)
+
+## secret/config file scan
+no private config files tracked
+
+## status
+## [32mmain[m...[31morigin/main[m
+ [31mM[m README.md
+[31m??[m protocol-compatibility-report.md
+[31m??[m settings.example.json

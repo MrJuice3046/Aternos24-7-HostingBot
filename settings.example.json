@@ -1,0 +1,112 @@
+{
+  "name": "AFK Bot",
+  "bot-account": {
+    "username": "Virgo",
+    "password": "",
+    "type": "offline"
+  },
+  "server": {
+    "ip": "VirgoYT.aternos.me",
+    "port": 12652,
+    "version": "26.3",
+    "proxy-version-fallback": "26.1",
+    "try-creative": false
+  },
+  "position": {
+    "enabled": true,
+    "x": 0,
+    "y": 100,
+    "z": 0
+  },
+  "utils": {
+    "auto-auth": {
+      "enabled": false,
+      "password": ""
+    },
+    "anti-afk": {
+      "enabled": true,
+      "sneak": true
+    },
+    "chat-messages": {
+      "enabled": false,
+      "repeat": true,
+      "repeat-delay": 120,
+      "messages": [
+        "I'm a regular player",
+        "I like to play Minecraft!"
+      ]
+    },
+    "chat-log": true,
+    "auto-reconnect": true,
+    "auto-reconnect-delay": 2000,
+    "max-reconnect-delay": 120000
+  },
+  "movement": {
+    "enabled": true,
+    "circle-walk": {
+      "enabled": true,
+      "radius": 4,
+      "speed": 3000
+    },
+    "look-around": {
+      "enabled": true,
+      "interval": 5000
+    },
+    "random-jump": {
+      "enabled": true,
+      "interval": 10000
+    }
+  },
+  "modules": {
+    "avoidMobs": true,
+    "combat": true,
+    "beds": false,
+    "chat": true,
+    "console-commands": true
+  },
+  "combat": {
+    "attack-mobs": true,
+    "auto-eat": true
+  },
+  "beds": {
+    "pick-up-day": false,
+    "place-night": false
+  },
+  "player-skills": {
+    "enabled": true,
+    "replyCooldownMs": 4000,
+    "owners": [],
+    "autoEatAtFood": 14,
+    "autoHuntForFood": true,
+    "tasks": {
+      "maxDurationMs": 180000,
+      "maxActions": 24,
+      "maxDistance": 32,
+      "pathTimeoutMs": 20000,
+      "autoCraftTools": true,
+      "allowDigFallback": false,
+      "allowScaffoldFallback": false
+    },
+    "ai": {
+      "enabled": false,
+      "model": "gpt-4o-mini",
+      "baseUrl": "https://api.openai.com/v1",
+      "maxRequestsPerMinute": 12
+    }
+  },
+  "discord": {
+    "enabled": false,
+    "webhookUrl": "",
+    "events": {
+      "connect": true,
+      "disconnect": true,
+      "chat": false
+    }
+  },
+  "chat": {
+    "respond": true,
+    "tpWhitelist": [
+      "Virgo"
+    ]
+  }
+}
