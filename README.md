@@ -38,6 +38,11 @@ or better (gold, diamond) are reported honestly instead of mined without drops.
 The bot can also **smelt** raw iron, copper, or gold it is carrying into ingots
 with the same fuel-aware furnace flow used for cooking.
 
+Ask it `why` or `what are you doing?` and it replies with the reason behind its
+current top-priority decision (`!bot why` works too). Add `and bring it to me`
+to a mining or chopping request and it walks to you and drops the collected
+items once the task finishes.
+
 Food delivery means dropping the collected items near the requester—Minecraft
 does not provide a guaranteed direct inventory transfer. Cooking uses a nearby
 furnace or can craft/place one if the bot has the required materials, crafting

@@ -90,3 +90,39 @@ test('player-skill chat limits movement to trusted users and honors reply cooldo
   assert.equal(skills.snapshot().mode, 'stay');
   assert.deepEqual(goals.at(-1), [null]);
 });
+
+test('situation analysis attaches human-readable reasons to priorities', () => {
+  const priorities = analyzeSituation({ connected: true, health: 4, food: 3, nearestThreatDistance: 2 });
+  assert.match(priorities[0].reason, /health/i);
+  assert.equal(analyzeSituation({ connected: false })[0].reason, 'I am not connected to a server yet.');
+});
+
+test('the bot can explain its current thinking when asked why', () => {
+  let clock = 20000;
+  const messages = [];
+  const bot = {
+    username: 'AFKBot',
+    health: 20,
+    food: 20,
+    entity: { position: { x: 1, y: 64, z: 1 } },
+    players: {},
+    entities: {},
+    inventory: { items: () => [] },
+    chat: message => messages.push(message),
+    pathfinder: { setGoal() {} },
+    clearControlStates() {}
+  };
+  const skills = createPlayerSkills({
+    bot,
+    config: { chat: { tpWhitelist: ['Owner'] }, 'player-skills': { replyCooldownMs: 1000 } },
+    GoalFollow: class {},
+    now: () => clock
+  });
+  skills.think();
+  assert.match(skills.snapshot().lastReason, /observing/i);
+  assert.equal(skills.handleChat('Owner', 'what are you doing?'), true);
+  assert.match(messages.at(-1), /observing/i);
+  clock += 1001;
+  assert.equal(skills.handleChat('Owner', '!bot why'), true);
+  assert.match(messages.at(-1), /observing/i);
+});

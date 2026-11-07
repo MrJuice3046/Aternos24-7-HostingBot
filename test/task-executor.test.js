@@ -128,3 +128,29 @@ test('mining without a required pickaxe attempts to craft one from wood first', 
   assert.equal(result, false, 'the task stops instead of mining without a proper tool');
   assert.deepEqual(crafted, [1, 2, 3, 4, 5], 'wood, table, and pickaxes are crafted in order before mining');
 });
+
+test('mining delivers the requested resources to the requester when asked', async () => {
+  const tossed = [];
+  const bot = {
+    entity: { position: { x: 0, y: 64, z: 0 } },
+    username: 'Bot',
+    players: { Owner: { entity: { position: { x: 10, y: 64, z: 0 } } } },
+    inventory: { items: () => [
+      { name: 'stone_pickaxe', type: 30, metadata: 0, count: 1 },
+      { name: 'raw_iron', type: 21, metadata: 0, count: 5 }
+    ] },
+    findBlock: () => ({ position: { x: 1, y: 64, z: 1 }, name: 'iron_ore', diggable: true }),
+    blockAt: () => ({ name: 'iron_ore', diggable: true }),
+    dig: async () => {},
+    toss: async (type, metadata, count) => tossed.push(count),
+    equip: async () => {},
+    pathfinder: { setMovements() {}, setGoal() {}, goto: async () => {} },
+    clearControlStates() {}
+  };
+  const executor = createTaskExecutor({ bot, config: {}, sleep: async () => {} });
+  const result = await executor.start({
+    type: 'mine', resources: ['iron'], bonusResources: [], amount: 8, maxDistance: 32, deliverTo: 'Owner'
+  }, 'Owner');
+  assert.equal(result, true);
+  assert.deepEqual(tossed, [5], 'the whole carried raw-iron stack is dropped for the requester');
+});

@@ -744,7 +744,7 @@ function initializeModules(bot, mcData, defaultMove, authPassword) {
   }
 
   if (config.modules.avoidMobs && !config.modules.combat) {
-    avoidMobs(bot);
+    avoidMobs(bot, mcData);
   }
   if (config.modules.combat) {
     combatModule(bot, mcData);
@@ -843,23 +843,34 @@ function startLookAround(bot) {
   }, config.movement['look-around'].interval);
 }
 
-function avoidMobs(bot) {
+function avoidMobs(bot, mcData) {
   const safeDistance = 5;
+  const passiveMobs = new Set([
+    'cow', 'pig', 'sheep', 'chicken', 'rabbit', 'goat', 'horse', 'donkey', 'mule',
+    'cat', 'wolf', 'fox', 'villager', 'wandering_trader', 'iron_golem', 'snow_golem',
+    'allay', 'bee', 'dolphin', 'squid', 'glow_squid', 'turtle', 'frog', 'axolotl',
+    'salmon', 'cod', 'tropical_fish', 'pufferfish', 'bat', 'parrot', 'llama',
+    'trader_llama', 'ocelot', 'panda', 'polar_bear', 'strider', 'camel', 'sniffer', 'mooshroom'
+  ]);
+  const isThreat = entity => {
+    if (!entity || entity.type !== 'mob' || !entity.name) return false;
+    const name = String(entity.name).replace(/^minecraft:/, '');
+    if (passiveMobs.has(name)) return false;
+    const registryEntry = mcData?.entitiesByName?.[name];
+    if (registryEntry && (registryEntry.type === 'animal' || registryEntry.category === 'Passive mobs')) return false;
+    return true;
+  };
   addInterval(() => {
-    if (!bot || !botState.connected || typeof bot.setControlState !== 'function') return;
+    if (!bot || !botState.connected || hasTaskMovementControl() || typeof bot.setControlState !== 'function') return;
     try {
-      const entities = Object.values(bot.entities).filter(e =>
-        e.type === 'mob' || (e.type === 'player' && e.username !== bot.username)
+      const threat = Object.values(bot.entities).find(e =>
+        isThreat(e) && e.position && bot.entity.position.distanceTo(e.position) < safeDistance
       );
-      for (const e of entities) {
-        if (!e.position) continue;
-        if (bot.entity.position.distanceTo(e.position) < safeDistance) {
-          bot.setControlState('back', true);
-          setTimeout(() => {
-            if (bot && typeof bot.setControlState === 'function') bot.setControlState('back', false);
-          }, 500);
-          break;
-        }
+      if (threat) {
+        bot.setControlState('back', true);
+        setTimeout(() => {
+          if (bot && typeof bot.setControlState === 'function') bot.setControlState('back', false);
+        }, 500);
       }
     } catch (e) {
       console.log('[AvoidMobs] Error:', e.message);
