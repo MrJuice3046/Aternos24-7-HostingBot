@@ -3,17 +3,19 @@
 require('./lib/protocol-compat');
 const mineflayer = require('mineflayer');
 const { Movements, pathfinder, goals } = require('mineflayer-pathfinder');
-const { GoalBlock } = goals;
+const { GoalBlock, GoalFollow } = goals;
 const config = require('./settings.json');
 const express = require('express');
 const http = require('http');
 const https = require('https');
 const { resolveBotVersion } = require('./lib/version');
+const { createPlayerSkills, getSkillCatalogSummary } = require('./lib/player-skills');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 let bot = null;
+let playerSkills = null;
 let activeIntervals = [];
 let reconnectTimeoutId = null;
 let connectionTimeoutId = null;
@@ -254,7 +256,15 @@ app.get('/health', (req, res) => {
     coords: (bot && bot.entity) ? bot.entity.position : null,
     lastActivity: botState.lastActivity,
     reconnectAttempts: botState.reconnectAttempts,
-    memoryUsage: process.memoryUsage().heapUsed / 1024 / 1024
+    memoryUsage: process.memoryUsage().heapUsed / 1024 / 1024,
+    playerSkills: playerSkills ? playerSkills.snapshot() : null
+  });
+});
+
+app.get('/skills', (req, res) => {
+  res.json({
+    ...getSkillCatalogSummary(),
+    active: playerSkills ? playerSkills.snapshot() : null
   });
 });
 
@@ -345,6 +355,8 @@ function createBot() {
   }
 
   if (bot) {
+    if (playerSkills) playerSkills.stopFollowing();
+    playerSkills = null;
     clearAllIntervals();
     try { bot.removeAllListeners(); bot.end(); } catch (e) {
       console.log('[Cleanup] Error ending previous bot:', e.message);
@@ -515,6 +527,21 @@ function scheduleReconnect() {
 
 function initializeModules(bot, mcData, defaultMove, authPassword) {
   console.log('[Modules] Initializing...');
+
+  playerSkills = config['player-skills']?.enabled === false
+    ? null
+    : createPlayerSkills({ bot, config, GoalFollow });
+  if (playerSkills) {
+    playerSkills.think();
+    addInterval(() => {
+      if (bot && botState.connected) playerSkills?.think();
+    }, 5000);
+    bot.on('chat', (username, message) => playerSkills?.handleChat(username, message));
+    console.log(
+      `[Skills] ${getSkillCatalogSummary().coreSkills} core behaviors and ` +
+      `${getSkillCatalogSummary().generatedVariants.toLocaleString()} strategy variants loaded.`
+    );
+  }
 
   if (config.utils['auto-auth']?.enabled && authPassword) {
     let authHandled = false;
@@ -865,7 +892,7 @@ function chatModule(bot) {
 
       if (config.chat?.respond) {
         const lowerMsg = message.toLowerCase();
-        if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
+        if (!playerSkills && (lowerMsg.includes('hello') || lowerMsg.includes('hi'))) {
           bot.chat(`Hello, ${username}!`);
         }
 

@@ -19,6 +19,33 @@ and its coordinates.
 
 ---
 
+## Player Skills (Experimental)
+
+The optional player-skill layer adds practical Minecraft awareness, basic
+priority-based decision making, and chat interaction. It currently covers
+health/food/threat awareness, trusted-player follow and stay commands, status,
+position, inventory, nearby-player and world-time replies, polite greetings,
+cooldowns, and short-term interaction tracking. It does not make the bot a
+human player: it has no general understanding, memory across restarts, or
+universal knowledge of Minecraft, and it does not autonomously build, mine,
+trade, or complete arbitrary quests.
+
+The catalog exposes **36 core behavior definitions** and **10,240 generated
+strategy variants** (8 domains × 16 situations × 16 strategies × 5 communication
+styles). These are composable situation/style variants, not 10,240 separately
+implemented or learned abilities. The planner ranks urgent conditions first;
+the catalog is inspectable at `/skills`, and `/health` includes current skill
+state.
+
+Chat commands begin with `!bot`. Anyone may ask for help, status, position,
+inventory, nearby players, or world time. Only names in `chat.tpWhitelist` or
+`player-skills.owners` may move the bot with `!bot follow [player]`, `!bot come`,
+`!bot stay`, or `!bot stop`. Keep those lists limited to trusted people. The
+layer is enabled in `settings.example.json` and can be disabled with
+`"player-skills": { "enabled": false }`.
+
+---
+
 ## Compatibility status
 
 The project now uses an experimental native 26.3 stack: the upstream Mineflayer

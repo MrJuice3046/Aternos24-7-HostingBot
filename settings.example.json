@@ -72,6 +72,11 @@
     "pick-up-day": false,
     "place-night": false
   },
+  "player-skills": {
+    "enabled": true,
+    "replyCooldownMs": 4000,
+    "owners": []
+  },
   "discord": {
     "enabled": false,
     "webhookUrl": "",
