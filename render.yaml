@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: aternos-24-7-hosting-bot
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BOT_USERNAME
+        sync: false
+      - key: BOT_PASSWORD
+        sync: false
+      - key: BOT_AUTH_PASSWORD
+        sync: false
