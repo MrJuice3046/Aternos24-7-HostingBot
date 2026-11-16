@@ -8,7 +8,7 @@
   "server": {
     "ip": "your.server.ip",
     "port": 25565,
-    "version": "",
+    "version":1.24.1 "",
     "try-creative": false
   },
   "position": {
